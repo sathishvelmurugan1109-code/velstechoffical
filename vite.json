@@ -1,0 +1,26 @@
+{
+  "name": "vels-tech",
+  "description": "JSON representation of the Vite config for the Vels Tech website. NOTE: Vite reads vite.config.js at runtime — this file mirrors those settings for reference/tooling purposes.",
+  "viteVersion": "^6.0.7",
+  "config": {
+    "root": ".",
+    "publicDir": "public",
+    "build": {
+      "outDir": "dist",
+      "sourcemap": false,
+      "minify": true
+    },
+    "server": {
+      "host": true,
+      "port": 5173,
+      "open": true
+    },
+    "preview": {
+      "port": 4173
+    },
+    "plugins": [
+      "@vitejs/plugin-react",
+      "@tailwindcss/vite"
+    ]
+  }
+}
