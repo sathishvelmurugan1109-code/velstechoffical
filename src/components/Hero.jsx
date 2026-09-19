@@ -169,7 +169,7 @@ export default function Hero() {
               initial="hidden"
               animate="visible"
               custom={0.32}
-              className="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center"
+              className="relative z-20 mt-9 flex flex-col gap-4 sm:flex-row sm:items-center"
             >
               <a
                 href={buildWhatsAppLink(DEFAULT_WA_MESSAGE)}
