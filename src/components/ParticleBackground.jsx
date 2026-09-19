@@ -162,7 +162,11 @@ export default function ParticleBackground() {
   }, []);
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+        <div
+      className="fixed inset-0 -z-10 overflow-hidden"
+      aria-hidden="true"
+      style={{ pointerEvents: "none" }}
+    >
       {/* Base */}
       <div className="absolute inset-0 bg-void" />
 
@@ -175,7 +179,10 @@ export default function ParticleBackground() {
       <div className="grid-bg absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
 
       {/* Interactive particles */}
-      <canvas ref={canvasRef} className="absolute inset-0 opacity-70" />
+      {/* NOTE: `h-full w-full` is required — `inset-0` alone does NOT stretch a
+          replaced element like <canvas>, so on DPR>1 screens the canvas box
+          resolved to its intrinsic (attribute) size and rendered 2x too large. */}
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-70" />
 
       {/* Bottom fade for readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-void" />

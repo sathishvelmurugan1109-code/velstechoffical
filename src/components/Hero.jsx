@@ -110,14 +110,18 @@ export default function Hero() {
             </motion.div>
 
             {/* Headline */}
+            {/* Headline — the visible text is split into per-letter spans for the
+                reveal animation, so an explicit aria-label keeps the accessible
+                name readable (otherwise AT announces "W e   B u i l d …"). */}
             <motion.h1
               variants={fadeUp}
               initial="hidden"
               animate="visible"
               custom={0.08}
+              aria-label="We Build Digital Experiences That Dominate."
               className="font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-6xl lg:text-[4.2rem]"
             >
-              <span className="hero-animated-line block">
+              <span className="hero-animated-line block" aria-hidden="true">
                 <AnimatedText
                   text="We Build Digital"
                   as="span"
@@ -126,7 +130,7 @@ export default function Hero() {
                   delay={0.18}
                 />
               </span>
-              <span className="hero-animated-line block text-gold-soft text-gold-glow">
+              <span className="hero-animated-line block text-gold-soft text-gold-glow" aria-hidden="true">
                 <AnimatedText
                   text="Experiences"
                   as="span"
@@ -135,7 +139,7 @@ export default function Hero() {
                   delay={0.38}
                 />
               </span>
-              <span className="hero-animated-line block">
+              <span className="hero-animated-line block" aria-hidden="true">
                 <AnimatedText
                   text="That Dominate."
                   as="span"

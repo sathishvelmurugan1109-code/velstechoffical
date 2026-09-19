@@ -1,13 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { NAV_LINKS } from "../data/site";
 import logo from "../assets/profile.png";
 
+const MOBILE_MENU_ID = "mobile-menu";
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("home");
+
+  const headerRef = useRef(null);
+  const toggleRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -35,8 +40,44 @@ export default function Navbar() {
     return () => observer.disconnect();
   }, []);
 
+  /**
+   * Mobile menu controls: close on Escape (returning focus to the toggle),
+   * on any tap/click outside the header, and when the viewport grows back to
+   * the desktop breakpoint. Nothing here locks body scroll, so the page is
+   * never left in a locked state after the menu closes.
+   */
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+
+    const onPointerDown = (event) => {
+      if (!headerRef.current?.contains(event.target)) setOpen(false);
+    };
+
+    const onResize = () => {
+      if (window.innerWidth >= 1024) setOpen(false);
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [open]);
+
   return (
     <motion.header
+      ref={headerRef}
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -97,13 +138,15 @@ export default function Navbar() {
           </a>
         </div>
 
-        {/* Mobile hamburger */}
+        {/* Mobile hamburger — 44px touch target, keeps the icon optically aligned */}
         <button
+          ref={toggleRef}
           type="button"
-          className="text-white lg:hidden"
+          className="-mr-2 grid h-11 w-11 shrink-0 place-items-center text-white transition-colors hover:text-gold lg:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
+          aria-controls={MOBILE_MENU_ID}
         >
           {open ? <X size={26} /> : <Menu size={26} />}
         </button>
@@ -113,11 +156,12 @@ export default function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
+            id={MOBILE_MENU_ID}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden border-t border-gold/30 bg-void/95 backdrop-blur-md lg:hidden"
+            className="mobile-menu overflow-hidden border-t border-gold/30 bg-void/95 backdrop-blur-md lg:hidden"
           >
             <ul className="flex flex-col gap-1 px-5 py-4">
               {NAV_LINKS.map((link) => {

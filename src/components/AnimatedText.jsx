@@ -78,7 +78,13 @@ export default function AnimatedText({
       <Component className={className} {...props}>
         {words.map((word, index) => (
           <span key={`word-${index}`} className="inline-block align-top">
-            {index > 0 && <span className="inline-block w-[0.35em]" aria-hidden="true" />}
+            {/* A real (non-breaking) space character is rendered inside the gap
+                spacer so the DOM text keeps word separators for copy-paste,
+                search engines and screen readers — a bare width-only spacer
+                would collapse the words into e.g. "inDigital". */}
+            {index > 0 && (
+              <span className="inline-block w-[0.35em]">{"\u00A0"}</span>
+            )}
             {renderWord(word, index)}
           </span>
         ))}

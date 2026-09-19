@@ -14,6 +14,19 @@ export default function App() {
   // Cinematic intro — shown once per browser session.
   const [showSplash, setShowSplash] = useState(shouldShowSplash);
 
+  // Honour deep links (e.g. example.com/#contact) even when the cinematic
+  // intro is active — the splash locks body scroll, so hash scroll can be
+  // missed. Once the splash dismisses, scroll the target into view.
+  useEffect(() => {
+    if (showSplash) return undefined;
+    const hash = window.location.hash;
+    if (!hash) return undefined;
+    const id = hash.slice(1);
+    const target = document.getElementById(id);
+    if (target) target.scrollIntoView({ block: "start" });
+    return undefined;
+  }, [showSplash]);
+
   return (
     <div className="relative min-h-screen font-body text-zinc-100 antialiased">
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}

@@ -17,6 +17,7 @@ import {
   DEFAULT_WA_MESSAGE,
   buildWhatsAppLink,
 } from "../data/site";
+import { serviceAnchorId } from "../lib/interactions";
 
 /* ============================================================
    Minimal gold line-art visuals — one per service.
@@ -267,6 +268,7 @@ export default function Services() {
             return (
               <motion.article
                 key={service.title}
+                id={serviceAnchorId(service.title)}
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
@@ -309,7 +311,7 @@ export default function Services() {
                     Learn More
                     <ArrowRight size={14} />
                   </a>
-                  <ArrowUpRight size={14} className="svc-arrow" />
+                  <ArrowUpRight size={14} className="svc-arrow" aria-hidden="true" />
                 </div>
 
                 <span className="svc-vis">

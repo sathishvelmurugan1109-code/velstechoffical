@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -16,8 +16,7 @@ import {
   Mail,
   MessageCircle,
   MessagesSquare,
-  Phone,
-  Play,
+        Phone,
   Rocket,
   Send,
   ShieldCheck,
@@ -27,10 +26,27 @@ import {
   Zap,
 } from "lucide-react";
 import AnimatedText from "./AnimatedText";
-import { COMPANY, SERVICES, buildWhatsAppLink } from "../data/site";
+import {
+  COMPANY,
+  SERVICES,
+  SOCIALS,
+  buildWhatsAppLink,
+} from "../data/site";
+import { buildInquiryText, validateInquiry } from "../lib/interactions";
 import logo from "../assets/profile.png";
 
 const INITIAL_FORM = { name: "", phone: "", service: "", message: "" };
+
+/** Social icon per configured platform id (see SOCIALS in data/site.js). */
+const SOCIAL_ICONS = {
+  facebook: Facebook,
+  instagram: Instagram,
+  linkedin: Linkedin,
+  youtube: Youtube,
+};
+
+/** How long the submit button stays disabled — blocks duplicate WhatsApp tabs. */
+const SUBMIT_LOCK_MS = 1600;
 
 const PROCESS = [
   { number: "01", icon: MessagesSquare, title: "Discuss", detail: "Your Idea" },
@@ -41,33 +57,77 @@ const PROCESS = [
 
 export default function Contact() {
   const [form, setForm] = useState(INITIAL_FORM);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [blockedLink, setBlockedLink] = useState("");
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError("");
+  const formRef = useRef(null);
+  const lockTimerRef = useRef(null);
+
+  /* Clear the submit lock if the section unmounts mid-lock. */
+  useEffect(() => () => window.clearTimeout(lockTimerRef.current), []);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => {
+      if (!prev[name]) return prev;
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
+    setFormError("");
+    setSent(false);
+    setBlockedLink("");
   };
 
   /** Compose the WhatsApp message from the form and open it. */
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-    if (!form.name.trim() || !form.phone.trim() || !form.service) {
-      setError("Please fill in your name, phone number and required service.");
+    // Guard against double-clicks / double Enters opening two WhatsApp tabs.
+    if (submitting) return;
+
+    const nextErrors = validateInquiry(form);
+    setErrors(nextErrors);
+    setSent(false);
+    setBlockedLink("");
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFormError("Please check the highlighted fields and try again.");
+      const firstInvalid = Object.keys(nextErrors)[0];
+      formRef.current
+        ?.querySelector(`[name="${firstInvalid}"]`)
+        ?.focus();
       return;
     }
 
-    const text =
-      `*New Inquiry — Vels Tech Website* 🚀\n\n` +
-      `👤 *Name:* ${form.name.trim()}\n` +
-      `📞 *Phone:* ${form.phone.trim()}\n` +
-      `🛠️ *Service Required:* ${form.service}\n` +
-      `💬 *Message:* ${form.message.trim() || "—"}`;
+    setFormError("");
+    setSubmitting(true);
 
-    window.open(buildWhatsAppLink(text), "_blank", "noopener,noreferrer");
+    const link = buildWhatsAppLink(buildInquiryText(form));
+    const popup =
+      typeof window !== "undefined"
+        ? window.open(link, "_blank", "noopener,noreferrer")
+        : null;
+
+    if (!popup) {
+      // Popup blocked (common in iOS Safari / strict blockers) — never fail
+      // silently: hand the visitor a real, tappable link instead.
+      setBlockedLink(link);
+      setSubmitting(false);
+      return;
+    }
+
     setSent(true);
     setForm(INITIAL_FORM);
+    setErrors({});
+    lockTimerRef.current = window.setTimeout(
+      () => setSubmitting(false),
+      SUBMIT_LOCK_MS
+    );
   };
 
   const infoCards = [
@@ -122,9 +182,9 @@ export default function Contact() {
               Let's Talk
             </span>
             <p className="contact-eyebrow">LET’S CONNECT <span /></p>
-            <h2 id="contact-heading">
-              <AnimatedText text="Let’s Build Something" as="span" className="block" delay={0.14} />
-              <AnimatedText text="Amazing Together" as="strong" className="block text-gold-soft text-gold-glow" delay={0.28} />
+            <h2 id="contact-heading" aria-label="Let’s Build Something Amazing Together">
+              <AnimatedText aria-hidden="true" text="Let’s Build Something" as="span" className="block" delay={0.14} />
+              <AnimatedText aria-hidden="true" text="Amazing Together" as="strong" className="block text-gold-soft text-gold-glow" delay={0.28} />
             </h2>
             <p className="contact-lead">Tell us about your project — your inquiry goes straight to our WhatsApp for the fastest response.</p>
 
@@ -147,11 +207,21 @@ export default function Contact() {
 
             <div className="contact-social-row">
               <div><strong>Follow Us</strong><small>Stay connected for latest updates</small></div>
-              <div className="contact-socials">
-                <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="Vels Tech on LinkedIn"><Linkedin size={16} /></a>
-                <a href={COMPANY.instagram} target="_blank" rel="noopener noreferrer" aria-label="Vels Tech on Instagram"><Instagram size={16} /></a>
-                <a href={COMPANY.facebook} target="_blank" rel="noopener noreferrer" aria-label="Vels Tech on Facebook"><Facebook size={16} /></a>
-                <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" aria-label="Vels Tech on YouTube"><Play size={14} fill="currentColor" /></a>
+                            <div className="contact-socials">
+                {SOCIALS.map((social) => {
+                  const Icon = SOCIAL_ICONS[social.id];
+                  return Icon ? (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Vels Tech on ${social.label}`}
+                    >
+                      <Icon size={16} />
+                    </a>
+                  ) : null;
+                })}
               </div>
             </div>
           </motion.div>
@@ -165,7 +235,8 @@ export default function Contact() {
               <div className="contact-globe-orbit" />
             </div>
 
-            <motion.form
+                                                <motion.form
+              ref={formRef}
               onSubmit={handleSubmit}
               initial={{ opacity: 0, x: 26 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -187,15 +258,24 @@ export default function Contact() {
                   id="name"
                   name="name"
                   type="text"
+                  autoComplete="name"
                   value={form.name}
                   onChange={handleChange}
+                  onFocus={() => setFormError("")}
                   placeholder="e.g. Arun Kumar"
                   className="contact-field"
+                  aria-invalid={errors.name ? "true" : "false"}
+                  aria-describedby={errors.name ? "name-error" : undefined}
                   required
                 />
+                {errors.name && (
+                  <p id="name-error" role="alert" className="contact-error">
+                    {errors.name}
+                  </p>
+                )}
               </div>
 
-              <div>
+                            <div>
                 <label
                   htmlFor="phone"
                   className="mb-2 block text-xs font-semibold uppercase tracking-wider text-zinc-400"
@@ -206,12 +286,21 @@ export default function Contact() {
                   id="phone"
                   name="phone"
                   type="tel"
+                  autoComplete="tel"
                   value={form.phone}
                   onChange={handleChange}
+                  onFocus={() => setFormError("")}
                   placeholder="e.g. +91 98765 43210"
                   className="contact-field"
+                  aria-invalid={errors.phone ? "true" : "false"}
+                  aria-describedby={errors.phone ? "phone-error" : undefined}
                   required
                 />
+                {errors.phone && (
+                  <p id="phone-error" role="alert" className="contact-error">
+                    {errors.phone}
+                  </p>
+                )}
               </div>
 
               <div className="sm:col-span-2">
@@ -226,7 +315,10 @@ export default function Contact() {
                   name="service"
                   value={form.service}
                   onChange={handleChange}
+                  onBlur={() => setFormError("")}
                   className="contact-field appearance-none"
+                  aria-invalid={errors.service ? "true" : "false"}
+                  aria-describedby={errors.service ? "service-error" : undefined}
                   required
                 >
                   <option value="" disabled>
@@ -241,6 +333,11 @@ export default function Contact() {
                     Other / Not sure yet
                   </option>
                 </select>
+                {errors.service && (
+                  <p id="service-error" role="alert" className="contact-error">
+                    {errors.service}
+                  </p>
+                )}
               </div>
 
               <div className="sm:col-span-2">
@@ -262,9 +359,12 @@ export default function Contact() {
               </div>
               </div>
 
-            {error && (
-              <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-300">
-                {error}
+                        {formError && (
+              <p
+                role="alert"
+                className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-300"
+              >
+                {formError}
               </p>
             )}
 
@@ -275,14 +375,46 @@ export default function Contact() {
               </p>
             )}
 
-              <button type="submit" className="contact-submit">
-              Send Inquiry on WhatsApp
-                <ArrowRight size={17} />
-              </button>
+                          {blockedLink && (
+              <p
+                role="alert"
+                className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-300"
+              >
+                Your browser blocked the WhatsApp tab.{" "}
+                <a
+                  href={blockedLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="contact-blocked-link font-semibold underline"
+                >
+                  Open WhatsApp manually
+                </a>
+                .
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              aria-busy={submitting}
+              className="contact-submit"
+            >
+              {submitting ? (
+                <>
+                  <span aria-hidden="true" className="contact-spinner" />
+                  Opening WhatsApp…
+                </>
+              ) : (
+                <>
+                  Send Inquiry on WhatsApp
+                  <ArrowRight size={17} />
+                </>
+              )}
+            </button>
 
               <p className="contact-form-note">
-              Submitting opens WhatsApp with your details pre-filled to{" "}
-              <span className="text-neon">{COMPANY.phoneDisplay}</span>
+                Submitting opens WhatsApp with your details pre-filled to{" "}
+                <span className="text-neon">{COMPANY.phoneDisplay}</span>
               </p>
             </motion.form>
           </div>

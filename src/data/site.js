@@ -12,6 +12,7 @@ import {
   Cloud,
   ShieldCheck,
 } from "lucide-react";
+import { buildWhatsAppUrl } from "../lib/interactions";
 
 export const COMPANY = {
   name: "Vels Tech",
@@ -19,17 +20,49 @@ export const COMPANY = {
   phoneDisplay: "+91 95977 68607",
   phoneTel: "+919597768607",
   whatsapp: "919597768607",
-  email: "hello@velstech.in", // placeholder — update with real email
+  email: "velstechoffical@gmail.com", // official business email
   hours: "Mon – Sat · 9:00 AM – 9:00 PM",
   facebook: "https://www.facebook.com/velstechoffical",
   facebookLabel: "velstech offical",
   instagram: "https://www.instagram.com/vels_tech_offical",
   instagramLabel: "vels_tech_offical",
+  // Not configured yet — leave empty and the icon stays hidden.
+  // Add the real profile URL (e.g. "https://www.linkedin.com/company/vels-tech")
+  // and the social icon appears automatically in the footer + contact section.
+  linkedin: "",
+  youtube: "",
 };
 
 /** Build a WhatsApp deep-link with a pre-filled inquiry message. */
 export const buildWhatsAppLink = (message) =>
-  `https://wa.me/${COMPANY.whatsapp}?text=${encodeURIComponent(message)}`;
+  buildWhatsAppUrl(COMPANY.whatsapp, message);
+
+/**
+ * Social profiles that are actually configured.
+ * Every entry here is a real destination — nothing is fabricated, and
+ * platforms without a configured URL are not rendered at all.
+ */
+export const SOCIALS = [
+  { id: "facebook", label: "Facebook", href: COMPANY.facebook },
+  { id: "instagram", label: "Instagram", href: COMPANY.instagram },
+  { id: "linkedin", label: "LinkedIn", href: COMPANY.linkedin },
+  { id: "youtube", label: "YouTube", href: COMPANY.youtube },
+].filter((social) => Boolean(social.href));
+
+/** Optional newsletter backend. See Footer.jsx for the fallback path. */
+const envNewsletterEndpoint = import.meta.env?.VITE_NEWSLETTER_ENDPOINT ?? "";
+
+export const NEWSLETTER = {
+  /**
+   * Paste a real subscription endpoint (Formspree, Buttondown, a Mailchimp
+   * proxy, ...) or set VITE_NEWSLETTER_ENDPOINT to POST signups to it.
+   * While this is empty the form opens the visitor's mail app with a
+   * pre-filled subscription request to COMPANY.email — a real submission
+   * the studio can action, never a fake success state.
+   */
+  endpoint: String(envNewsletterEndpoint).trim(),
+  subject: "The Signal — newsletter subscription",
+};
 
 export const DEFAULT_WA_MESSAGE =
   "Hi Vels Tech! 👋 I'd like a free consultation for my project.";

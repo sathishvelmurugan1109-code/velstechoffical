@@ -112,9 +112,10 @@ export default function About() {
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.65, delay: 0.06 }}
             className="about-title font-display"
+            aria-label="Your Trusted Partner in Digital Transformation"
           >
-            <AnimatedText text="Your Trusted Partner in" as="span" className="block" delay={0.12} />
-            <AnimatedText text="Digital Transformation" as="span" className="block text-gold-soft text-gold-glow" delay={0.2} />
+            <AnimatedText aria-hidden="true" text="Your Trusted Partner in" as="span" className="block" delay={0.12} />
+            <AnimatedText aria-hidden="true" text="Digital Transformation" as="span" className="block text-gold-soft text-gold-glow" delay={0.2} />
           </motion.h2>
 
           <motion.p
