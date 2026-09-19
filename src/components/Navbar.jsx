@@ -42,7 +42,7 @@ export default function Navbar() {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled || open
-          ? "border-b border-gold/30 bg-void/80/backdrop-blur-md shadow-sm"
+          ? "border-b border-gold/30 bg-void/80 backdrop-blur-md shadow-sm"
           : "border-b border-transparent bg-transparent"
       }`}
     >
@@ -71,7 +71,7 @@ export default function Navbar() {
                 <a
                   href={link.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`group relative pb-1.5 text-sm font-medium transition-colors duration-300 ${
+                  className={`nav-link group relative pb-1.5 text-sm font-medium transition-colors duration-300 ${
                     isActive ? "text-gold" : "text-zinc-300 hover:text-white"
                   }`}
                 >

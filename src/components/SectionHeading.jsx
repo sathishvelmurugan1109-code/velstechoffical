@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import AnimatedText from "./AnimatedText";
 
 /** Reusable animated section heading with neon tag + gradient highlight. */
 export default function SectionHeading({ id, tag, title, highlight, description }) {
@@ -22,7 +23,18 @@ export default function SectionHeading({ id, tag, title, highlight, description 
         transition={{ duration: 0.6, delay: 0.1 }}
         className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
       >
-        {title} <span className="text-gradient">{highlight}</span>
+        <AnimatedText text={title} as="span" className="inline-block" delay={0.12} />
+        {highlight && (
+          <>
+            <span className="inline-block w-2" aria-hidden="true" />
+            <AnimatedText
+              text={highlight}
+              as="span"
+              className="text-gradient text-gold-intense inline-block"
+              delay={0.22}
+            />
+          </>
+        )}
       </motion.h2>
 
       {description && (

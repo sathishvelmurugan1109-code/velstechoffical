@@ -12,12 +12,12 @@ import {
   ShieldCheck,
   Star,
   ChevronDown,
+  BadgeCheck,
+  Wallet,
+  Headphones,
 } from "lucide-react";
-import {
-  HERO_STATS,
-  DEFAULT_WA_MESSAGE,
-  buildWhatsAppLink,
-} from "../data/site";
+import { DEFAULT_WA_MESSAGE, buildWhatsAppLink } from "../data/site";
+import AnimatedText from "./AnimatedText";
 import logo from "../assets/profile.png";
 
 /* --- Trust badge (desktop floats in visual, mobile stacks below) --- */
@@ -77,6 +77,13 @@ const fadeUp = {
   }),
 };
 
+/* --- Why-choose-us promise card (replaces old stats strip) --- */
+const PROMISES = [
+  { icon: BadgeCheck, label: "On-Time Delivery" },
+  { icon: Wallet, label: "Transparent Pricing" },
+  { icon: Headphones, label: "Dedicated Support" },
+];
+
 export default function Hero() {
   return (
     <section
@@ -110,11 +117,33 @@ export default function Hero() {
               custom={0.08}
               className="font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-6xl lg:text-[4.2rem]"
             >
-              We Build Digital{" "}
-              <span className="block text-gold drop-shadow-[0_0_28px_rgba(255,208,0,0.35)]">
-                Experiences
-              </span>{" "}
-              That Dominate.
+              <span className="hero-animated-line block">
+                <AnimatedText
+                  text="We Build Digital"
+                  as="span"
+                  mode="words"
+                  className="hero-animated-heading"
+                  delay={0.18}
+                />
+              </span>
+              <span className="hero-animated-line block text-gold-soft text-gold-glow">
+                <AnimatedText
+                  text="Experiences"
+                  as="span"
+                  mode="words"
+                  className="hero-animated-heading hero-animated-highlight"
+                  delay={0.38}
+                />
+              </span>
+              <span className="hero-animated-line block">
+                <AnimatedText
+                  text="That Dominate."
+                  as="span"
+                  mode="words"
+                  className="hero-animated-heading"
+                  delay={0.58}
+                />
+              </span>
             </motion.h1>
 
             {/* Supporting text */}
@@ -171,26 +200,44 @@ export default function Hero() {
               ))}
             </motion.div>
 
-            {/* Stats glass card */}
-            <motion.dl
+            {/* Why choose us — promise card */}
+            <motion.div
               variants={fadeUp}
               initial="hidden"
               animate="visible"
               custom={0.58}
-              className="glass mt-10 grid grid-cols-2 gap-y-7 rounded-2xl px-7 py-7 sm:grid-cols-4"
+              className="glass mt-10 rounded-2xl px-7 py-6"
             >
-              {HERO_STATS.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <dt className="sr-only">{stat.label}</dt>
-                  <dd className="font-display text-3xl font-bold text-gold drop-shadow-[0_0_18px_rgba(255,208,0,0.35)]">
-                    {stat.value}
-                  </dd>
-                  <dd className="mt-1.5 text-xs font-medium text-mist">
-                    {stat.label}
-                  </dd>
-                </div>
-              ))}
-            </motion.dl>
+              <p className="text-[0.65rem] font-bold uppercase tracking-[0.24em] text-gold">
+                Why Choose Vels Tech?
+              </p>
+              <ul className="mt-4 grid gap-3 sm:grid-cols-3">
+                {PROMISES.map((p) => (
+                  <li key={p.label} className="flex items-center gap-2.5">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-gold/30 bg-graphite text-gold">
+                      <p.icon size={16} strokeWidth={1.8} />
+                    </span>
+                    <span className="text-xs font-semibold text-zinc-200 sm:text-[0.8rem]">
+                      {p.label}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/8 pt-4">
+                <p className="text-xs text-mist">
+                  Free consultation · No hidden charges
+                </p>
+                <a
+                  href={buildWhatsAppLink(DEFAULT_WA_MESSAGE)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-gold transition-colors hover:text-gold-deep"
+                >
+                  Get a Free Quote
+                  <ArrowRight size={14} />
+                </a>
+              </div>
+            </motion.div>
           </div>
 
           {/* ============ RIGHT — CINEMATIC VISUAL ============ */}

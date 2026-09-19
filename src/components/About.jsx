@@ -14,6 +14,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import AnimatedText from "./AnimatedText";
 import logo from "../assets/profile.png";
 
 /** Animated number counter that starts when scrolled into view. */
@@ -91,6 +92,9 @@ export default function About() {
 
       <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-16 px-5 py-24 lg:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-32">
         <div className="about-copy">
+          <span className="script-accent" aria-hidden="true">
+            Innovation · Delivered
+          </span>
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -109,7 +113,8 @@ export default function About() {
             transition={{ duration: 0.65, delay: 0.06 }}
             className="about-title font-display"
           >
-            Your Trusted Partner in <span>Digital Transformation</span>
+            <AnimatedText text="Your Trusted Partner in" as="span" className="block" delay={0.12} />
+            <AnimatedText text="Digital Transformation" as="span" className="block text-gold-soft text-gold-glow" delay={0.2} />
           </motion.h2>
 
           <motion.p

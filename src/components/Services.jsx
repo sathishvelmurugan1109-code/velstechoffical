@@ -2,13 +2,18 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   ArrowUpRight,
-  Star,
-  Sparkles,
+  BadgeCheck,
+  CalendarCheck,
   CheckCircle2,
+  Code2,
+  Compass,
+  PenTool,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
 } from "lucide-react";
 import {
   SERVICES,
-  HERO_STATS,
   DEFAULT_WA_MESSAGE,
   buildWhatsAppLink,
 } from "../data/site";
@@ -118,18 +123,46 @@ const ShieldVisual = () => (
 );
 
 const VISUALS = {
-  "Website Development": WebVisual,
+  "Website Design & Development": WebVisual,
   "Mobile App Development": MobileVisual,
-  "Digital Marketing": GrowthVisual,
-  "SEO Services": SeoVisual,
-  "E-Commerce Solutions": CartVisual,
-  "UI / UX Design": UiVisual,
-  "Cloud & DevOps": CloudVisual,
-  "Maintenance & Security": ShieldVisual,
+  "Performance Marketing": GrowthVisual,
+  "SEO & Local Growth": SeoVisual,
+  "E-Commerce Growth": CartVisual,
+  "Brand Identity & Design": UiVisual,
+  "Cloud Hosting & DevOps": CloudVisual,
+  "Support & Maintenance": ShieldVisual,
 };
 
-/* Client/avatar placeholders for the trust strip */
-const CLIENT_MARKS = ["VC", "NX", "AP", "BR", "KT"];
+/* --- Delivery flow under the service grid: 01 → 04 --- */
+const PROCESS = [
+  {
+    icon: Compass,
+    title: "Discover",
+    copy: "A free call to map your goals, audience, scope and budget.",
+  },
+  {
+    icon: PenTool,
+    title: "Design",
+    copy: "Wireframes and a gold-standard UI you approve before code.",
+  },
+  {
+    icon: Code2,
+    title: "Develop",
+    copy: "Clean, fast, tested build shipped in weekly review sprints.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Grow",
+    copy: "Launch, then SEO, ads and support to keep the numbers rising.",
+  },
+];
+
+/* --- Reassurance chips closing the section --- */
+const ASSURANCES = [
+  { icon: ShieldCheck, label: "Fixed-price quotes" },
+  { icon: CalendarCheck, label: "Weekly progress demos" },
+  { icon: BadgeCheck, label: "Post-launch support" },
+];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -176,6 +209,9 @@ export default function Services() {
         <div className="svc-glow g3" />
         <div className="svc-edge svc-edge-top" />
         <div className="svc-edge svc-edge-bottom" />
+        <div className="svc-wordart" aria-hidden="true">
+          Build <br /> Innovate <br /> Grow
+        </div>
       </div>
 
       <div className="relative mx-auto w-full max-w-7xl px-5 lg:px-8">
@@ -216,6 +252,10 @@ export default function Services() {
             End-to-end digital services engineered with modern technologies — one
             partner for everything your business needs to win online.
           </motion.p>
+
+          <span className="svc-script" aria-hidden="true">
+            Ideas <br /> Technology <br /> Growth
+          </span>
         </header>
 
         {/* ---------- 4 × 2 service grid ---------- */}
@@ -243,11 +283,11 @@ export default function Services() {
                 )}
 
                 <div className="svc-top">
-                  <span className="svc-icon">
-                    <Icon size={22} strokeWidth={1.6} />
-                  </span>
                   <span className="svc-num">
                     {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="svc-icon">
+                    <Icon size={22} strokeWidth={1.6} />
                   </span>
                 </div>
 
@@ -280,66 +320,74 @@ export default function Services() {
           })}
         </div>
 
-        {/* ---------- Bottom statistics bar ---------- */}
-        <motion.dl
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="svc-stats"
-        >
-          {HERO_STATS.map((stat) => (
-            <div key={stat.label} className="st">
-              <dt className="st-v">{stat.value}</dt>
-              <dd className="st-l">{stat.label}</dd>
-            </div>
-          ))}
-        </motion.dl>
-
-        {/* ---------- Consultation CTA + trust ---------- */}
+        {/* ---------- Delivery flow: 01 → 04 ---------- */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          custom={0.1}
-          className="svc-cta"
+          viewport={{ once: true, amount: 0.25 }}
+          className="svc-flow"
         >
-          <div className="svc-cta-copy">
-            <h3 className="font-display">Ready to scale your business?</h3>
-            <p>
-              Tell us about your project and get a free strategy call — a clear
-              roadmap, honest timelines and no obligation.
+          <div className="svc-flow-head">
+            <span className="svc-flow-kicker">
+              <i />
+              How we work
+            </span>
+
+            <h3 className="svc-flow-title font-display">
+              From first call to <span className="text-gradient">growth</span> — in
+              four clean steps
+            </h3>
+
+            <p className="svc-flow-note">
+              Typical timeline <b>2–6 weeks</b>
+              <span aria-hidden="true">·</span>
+              you see progress every single week
             </p>
           </div>
 
-          <div className="svc-cta-actions">
+          <ol className="svc-flow-steps">
+            {PROCESS.map((step, i) => {
+              const StepIcon = step.icon;
+              return (
+                <li key={step.title} className="fl">
+                  <span className="fl-top">
+                    <span className="fl-num">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="fl-icon">
+                      <StepIcon size={19} strokeWidth={1.6} />
+                    </span>
+                  </span>
+                  <h4 className="fl-name font-display">{step.title}</h4>
+                  <p className="fl-copy">{step.copy}</p>
+                </li>
+              );
+            })}
+          </ol>
+
+          <div className="svc-assure">
+            <ul className="svc-assure-list">
+              {ASSURANCES.map((item) => {
+                const AssureIcon = item.icon;
+                return (
+                  <li key={item.label} className="as">
+                    <AssureIcon size={14} strokeWidth={1.9} />
+                    {item.label}
+                  </li>
+                );
+              })}
+            </ul>
+
             <a
               href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-gold"
+              className="btn-gold-outline svc-plan-btn"
             >
-              Get Free Consultation
-              <ArrowRight size={16} />
+              Plan my project
+              <ArrowRight size={14} />
             </a>
-
-            <div className="svc-trust">
-              <div className="svc-avatars" aria-hidden="true">
-                {CLIENT_MARKS.map((mark) => (
-                  <span key={mark}>{mark}</span>
-                ))}
-              </div>
-              <div className="svc-trust-copy">
-                <p>Trusted by 30+ businesses</p>
-                <div className="svc-stars">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={12} fill="currentColor" strokeWidth={0} />
-                  ))}
-                  <small>5.0 average rating</small>
-                </div>
-              </div>
-            </div>
           </div>
         </motion.div>
       </div>

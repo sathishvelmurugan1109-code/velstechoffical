@@ -26,16 +26,17 @@ import {
   Youtube,
   Zap,
 } from "lucide-react";
+import AnimatedText from "./AnimatedText";
 import { COMPANY, SERVICES, buildWhatsAppLink } from "../data/site";
 import logo from "../assets/profile.png";
 
 const INITIAL_FORM = { name: "", phone: "", service: "", message: "" };
 
 const PROCESS = [
-  { icon: MessagesSquare, title: "Discuss", detail: "Your Idea" },
-  { icon: Users, title: "Get Expert", detail: "Guidance" },
-  { icon: Lightbulb, title: "Receive Best", detail: "Solution" },
-  { icon: Rocket, title: "Start Your", detail: "Project" },
+  { number: "01", icon: MessagesSquare, title: "Discuss", detail: "Your Idea" },
+  { number: "02", icon: Users, title: "Get Expert", detail: "Guidance" },
+  { number: "03", icon: Lightbulb, title: "Receive Best", detail: "Solution" },
+  { number: "04", icon: Rocket, title: "Start Your", detail: "Project" },
 ];
 
 export default function Contact() {
@@ -117,8 +118,14 @@ export default function Contact() {
             transition={{ duration: 0.65 }}
             className="contact-intro"
           >
+            <span className="script-accent" aria-hidden="true">
+              Let's Talk
+            </span>
             <p className="contact-eyebrow">LET’S CONNECT <span /></p>
-            <h2 id="contact-heading">Let’s Build Something <strong>Amazing Together</strong></h2>
+            <h2 id="contact-heading">
+              <AnimatedText text="Let’s Build Something" as="span" className="block" delay={0.14} />
+              <AnimatedText text="Amazing Together" as="strong" className="block text-gold-soft text-gold-glow" delay={0.28} />
+            </h2>
             <p className="contact-lead">Tell us about your project — your inquiry goes straight to our WhatsApp for the fastest response.</p>
 
             <div className="contact-process" aria-label="How we work">
