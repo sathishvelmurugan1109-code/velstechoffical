@@ -88,7 +88,7 @@ export default function Navbar() {
       }`}
     >
       <nav
-        className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8"
+        className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8"
         aria-label="Main navigation"
       >
         {/* Logo — exact brand asset, no visual modification */}
@@ -161,7 +161,7 @@ export default function Navbar() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="mobile-menu overflow-hidden border-t border-gold/30 bg-void/95 backdrop-blur-md lg:hidden"
+            className="mobile-menu relative z-20 overflow-hidden border-t border-gold/30 bg-void/95 backdrop-blur-md lg:hidden"
           >
             <ul className="flex flex-col gap-1 px-5 py-4">
               {NAV_LINKS.map((link) => {
