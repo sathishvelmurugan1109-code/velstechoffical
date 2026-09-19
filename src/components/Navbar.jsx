@@ -13,6 +13,51 @@ export default function Navbar() {
 
   const headerRef = useRef(null);
   const toggleRef = useRef(null);
+  const closeTimerRef = useRef(null);
+
+  /**
+   * Reliable anchor navigation.
+   * Native `#hash` links do nothing when the hash is unchanged (e.g. click
+   * Home while the URL is already `#home`), so users perceive the button as
+   * broken. Handle the scroll explicitly instead.
+   */
+  const handleNavClick = (event, href) => {
+    const id = href.slice(1);
+    const target = document.getElementById(id);
+    if (!target) return; // let the browser handle it (shouldn't happen)
+    event.preventDefault();
+    // Close the mobile menu first so its collapsing height doesn't shift
+    // the smooth-scroll target mid-animation.
+    setOpen(false);
+    if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    const behavior = reduceMotion ? "auto" : "smooth";
+    closeTimerRef.current = window.setTimeout(
+      () => {
+        if (id === "home") {
+          window.scrollTo({ top: 0, behavior });
+        } else {
+          target.scrollIntoView({ block: "start", behavior });
+        }
+        try {
+          window.history.pushState(null, "", href);
+        } catch {
+          /* ignore — hash update is cosmetic */
+        }
+        setActive(id);
+      },
+      open ? 60 : 0
+    );
+  };
+
+  useEffect(
+    () => () => {
+      if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+    },
+    []
+  );
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -92,7 +137,12 @@ export default function Navbar() {
         aria-label="Main navigation"
       >
         {/* Logo — exact brand asset, no visual modification */}
-        <a href="#home" className="flex items-center">
+        <a
+          href="#home"
+          onClick={(event) => handleNavClick(event, "#home")}
+          className="flex items-center"
+          aria-label="Vels Tech — back to home"
+        >
           <img
             src={logo}
             alt="Vels Tech logo"
@@ -111,6 +161,7 @@ export default function Navbar() {
               <li key={link.href}>
                 <a
                   href={link.href}
+                  onClick={(event) => handleNavClick(event, link.href)}
                   aria-current={isActive ? "page" : undefined}
                   className={`nav-link group relative pb-1.5 text-sm font-medium transition-colors duration-300 ${
                     isActive ? "text-gold" : "text-zinc-300 hover:text-white"
@@ -132,7 +183,11 @@ export default function Navbar() {
 
         {/* Desktop CTA — gold outlined with premium glow */}
         <div className="hidden lg:block">
-          <a href="#contact" className="btn-gold-outline">
+          <a
+            href="#contact"
+            onClick={(event) => handleNavClick(event, "#contact")}
+            className="btn-gold-outline"
+          >
             Get Free Consultation
             <ArrowRight size={16} />
           </a>
@@ -170,7 +225,7 @@ export default function Navbar() {
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      onClick={() => setOpen(false)}
+                      onClick={(event) => handleNavClick(event, link.href)}
                       aria-current={isActive ? "page" : undefined}
                       className={`block rounded-lg border-l-2 px-3 py-3 text-sm font-medium transition ${
                         isActive
@@ -186,7 +241,7 @@ export default function Navbar() {
               <li className="mt-2">
                 <a
                   href="#contact"
-                  onClick={() => setOpen(false)}
+                  onClick={(event) => handleNavClick(event, "#contact")}
                   className="btn-gold-outline w-full"
                 >
                   Get Free Consultation
