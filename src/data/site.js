@@ -38,6 +38,7 @@ export const NAV_LINKS = [
   { label: "Home", href: "#home" },
   { label: "Services", href: "#services" },
   { label: "About", href: "#about" },
+  { label: "Portfolio", href: "#portfolio" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -85,7 +86,7 @@ export const SERVICES = [
     title: "Mobile App Development",
     tagline: "Android · iOS · Cross-Platform",
     description:
-      "Beautiful, high-performance mobile apps for Android & iOS with smooth UX, offline support and store deployment included.",
+      "Beautiful, high-performance mobile apps for Android & iOS with smooth UX, offline support and store deployment.",
     points: [
       "Android & iOS apps",
       "React Native / Flutter",
@@ -98,7 +99,7 @@ export const SERVICES = [
     title: "Digital Marketing",
     tagline: "Social Ads · Branding",
     description:
-      "Data-driven campaigns on Meta & Google that turn scrolls into sales — plus complete brand identity design.",
+      "Data-driven campaigns on Meta & Google that turn attention into sales — plus complete brand identity design.",
     points: [
       "Meta & Google Ads",
       "Social media management",
@@ -111,7 +112,7 @@ export const SERVICES = [
     title: "SEO Services",
     tagline: "On-Page · Off-Page · Rank Boosting",
     description:
-      "Rank higher, get found faster. Complete technical, on-page and off-page SEO that compounds traffic month after month.",
+      "Rank higher and get found faster with complete technical, on-page and off-page SEO.",
     points: [
       "Keyword research & on-page SEO",
       "High-authority backlinks",
@@ -137,7 +138,7 @@ export const SERVICES = [
     title: "UI / UX Design",
     tagline: "Figma · Prototyping · Design Systems",
     description:
-      "Pixel-perfect interfaces designed around your users — wireframes to interactive prototypes that developers love.",
+      "Pixel-perfect interfaces designed around your users — from wireframes to interactive prototypes.",
     points: [
       "User research & wireframes",
       "Interactive prototypes",
@@ -150,7 +151,7 @@ export const SERVICES = [
     title: "Cloud & DevOps",
     tagline: "AWS · CI/CD · Scaling",
     description:
-      "Ship faster with reliable cloud infrastructure, automated deployments and 99.9% uptime monitoring.",
+      "Ship faster with reliable cloud infrastructure, automated deployments and continuous performance monitoring.",
     points: [
       "AWS / cloud hosting",
       "CI/CD pipelines",
@@ -163,7 +164,7 @@ export const SERVICES = [
     title: "Maintenance & Security",
     tagline: "Audits · Backups · 24/7 Support",
     description:
-      "Sleep easy — regular updates, security audits, daily backups and priority support keep your product safe.",
+      "Keep digital assets secure with regular updates, security audits, daily backups and priority support.",
     points: [
       "Security audits & SSL",
       "Automated daily backups",

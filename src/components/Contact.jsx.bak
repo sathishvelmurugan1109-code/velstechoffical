@@ -17,7 +17,6 @@ import {
   MessageCircle,
   MessagesSquare,
   Phone,
-  Play,
   Rocket,
   Send,
   ShieldCheck,

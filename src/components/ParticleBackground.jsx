@@ -58,7 +58,7 @@ export default function ParticleBackground() {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(204, 255, 0, 0.45)";
+        ctx.fillStyle = "rgba(255, 208, 0, 0.4)";
         ctx.fill();
       }
 
@@ -72,7 +72,7 @@ export default function ParticleBackground() {
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `rgba(204, 255, 0, ${(1 - d / LINK_DIST) * 0.14})`;
+            ctx.strokeStyle = `rgba(255, 208, 0, ${(1 - d / LINK_DIST) * 0.12})`;
             ctx.lineWidth = 1;
             ctx.stroke();
           }
@@ -105,9 +105,9 @@ export default function ParticleBackground() {
       <div className="absolute inset-0 bg-void" />
 
       {/* Gradient mesh blobs */}
-      <div className="absolute -top-32 -left-32 h-[34rem] w-[34rem] rounded-full bg-neon/10 blur-[140px] animate-float-slow" />
+      <div className="absolute -top-32 -left-32 h-[34rem] w-[34rem] rounded-full bg-gold/8 blur-[140px] animate-float-slow" />
       <div className="absolute top-1/3 -right-40 h-[30rem] w-[30rem] rounded-full bg-gold/10 blur-[130px] animate-float" />
-      <div className="absolute bottom-0 left-1/4 h-[26rem] w-[26rem] rounded-full bg-neon/5 blur-[120px]" />
+      <div className="absolute bottom-0 left-1/4 h-[26rem] w-[26rem] rounded-full bg-gold/5 blur-[120px]" />
 
       {/* Neon grid with radial mask */}
       <div className="grid-bg absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />

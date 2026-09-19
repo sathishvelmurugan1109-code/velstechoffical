@@ -1,7 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { Award, CheckCircle2, Rocket, ShieldCheck } from "lucide-react";
-import SectionHeading from "./SectionHeading";
+import {
+  ArrowUpRight,
+  Award,
+  CheckCircle2,
+  Clock3,
+  Headphones,
+  Play,
+  Rocket,
+  ShieldCheck,
+  Star,
+  Tag,
+  Users,
+  Zap,
+} from "lucide-react";
+import logo from "../assets/profile.png";
 
 /** Animated number counter that starts when scrolled into view. */
 function Counter({ value, suffix = "" }) {
@@ -32,10 +45,26 @@ function Counter({ value, suffix = "" }) {
 }
 
 const CHECKLIST = [
-  "Certified developers & designers",
-  "On-time delivery, every time",
-  "Transparent, fixed pricing",
-  "Dedicated post-launch support",
+  {
+    icon: Users,
+    title: "Certified developers & designers",
+    detail: "Skilled team with real-world experience",
+  },
+  {
+    icon: Clock3,
+    title: "On-time delivery, every time",
+    detail: "Commitment you can count on",
+  },
+  {
+    icon: Tag,
+    title: "Transparent, fixed pricing",
+    detail: "No hidden costs, no surprises",
+  },
+  {
+    icon: Headphones,
+    title: "Dedicated post-launch support",
+    detail: "We're here even after you go live",
+  },
 ];
 
 const STATS = [
@@ -50,25 +79,55 @@ export default function About() {
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="relative scroll-mt-24 py-24"
+      className="about-section relative scroll-mt-24"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-2 lg:px-8">
-        {/* Text column */}
-        <div>
-          <SectionHeading
+      <div className="about-ambient" aria-hidden="true">
+        <div className="about-grid" />
+        <div className="about-glow about-glow-left" />
+        <div className="about-glow about-glow-right" />
+        <div className="about-line about-line-top" />
+        <div className="about-line about-line-bottom" />
+      </div>
+
+      <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-16 px-5 py-24 lg:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-32">
+        <div className="about-copy">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.6 }}
+            className="about-badge"
+          >
+            <span /> ABOUT US
+          </motion.div>
+
+          <motion.h2
             id="about-heading"
-            tag="About Us"
-            title="Your Trusted Partner in"
-            highlight="Digital Transformation"
-            description="Vels Tech is a full-stack technology services company helping startups and businesses launch world-class digital products."
-          />
+            initial={{ opacity: 0, y: 22 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.65, delay: 0.06 }}
+            className="about-title font-display"
+          >
+            Your Trusted Partner in <span>Digital Transformation</span>
+          </motion.h2>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.6 }}
-            className="-mt-8 leading-relaxed text-zinc-400"
+            transition={{ duration: 0.6, delay: 0.12 }}
+            className="about-lead"
+          >
+            Vels Tech is a full-stack technology services company helping startups and businesses launch world-class digital products.
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.18 }}
+            className="about-description"
           >
             From <span className="text-neon">React websites</span> and{" "}
             <span className="text-neon">mobile apps</span> to{" "}
@@ -84,19 +143,19 @@ export default function About() {
             whileInView="visible"
             viewport={{ once: true, amount: 0.4 }}
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
-            className="mt-7 grid gap-3 sm:grid-cols-2"
+            className="about-benefits"
           >
             {CHECKLIST.map((item) => (
               <motion.li
-                key={item}
+                key={item.title}
                 variants={{
                   hidden: { opacity: 0, x: -16 },
                   visible: { opacity: 1, x: 0 },
                 }}
-                className="flex items-center gap-2.5 text-sm text-zinc-200"
+                className="about-benefit"
               >
-                <CheckCircle2 size={18} className="shrink-0 text-neon" />
-                {item}
+                <span className="about-benefit-icon"><item.icon size={17} /></span>
+                <span><strong>{item.title}</strong><small>{item.detail}</small></span>
               </motion.li>
             ))}
           </motion.ul>
@@ -105,58 +164,73 @@ export default function About() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-9"
+            transition={{ duration: 0.6, delay: 0.28 }}
+            className="about-actions"
           >
-            <a href="#contact" className="btn-neon">
-              Let's Work Together
+            <a href="#contact" className="about-primary-cta">
+              Let's Work Together <ArrowUpRight size={17} />
             </a>
+            <a href="#portfolio" className="about-story-cta"><span><Play size={13} fill="currentColor" /></span> Watch Our Story</a>
           </motion.div>
         </div>
 
-        {/* Stats / visual column */}
         <motion.div
           initial={{ opacity: 0, scale: 0.94 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7 }}
-          className="relative"
+          className="about-visual"
         >
-          <div className="glass relative rounded-3xl p-8 sm:p-10">
-            <div className="grid grid-cols-2 gap-6">
+          <div className="about-studio" aria-hidden="true">
+            <div className="about-wall-line" />
+            <div className="about-wall-logo"><img src={logo} alt="" width="220" height="220" /></div>
+            <div className="about-desk" />
+            <div className="about-light-column" />
+          </div>
+
+          <div className="about-dashboard">
+            <div className="about-dashboard-top">
+              <span>VELS / SYSTEM OVERVIEW</span>
+              <span className="about-live"><i /> LIVE</span>
+            </div>
+            <div className="about-stat-grid">
               {STATS.map((stat) => {
                 const Icon = stat.icon;
                 return (
                   <div
                     key={stat.label}
-                    className="rounded-2xl border border-white/5 bg-white/[0.03] p-5 text-center transition-colors duration-300 hover:border-neon/30"
+                    className="about-stat"
                   >
-                    <Icon size={24} className="mx-auto text-neon" />
-                    <p className="mt-3 font-display text-3xl font-bold text-white">
+                    <Icon size={21} />
+                    <p className="font-display">
                       <Counter value={stat.value} suffix={stat.suffix} />
                     </p>
-                    <p className="mt-1 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                    <p>
                       {stat.label}
                     </p>
                   </div>
                 );
               })}
             </div>
+            <div className="about-dashboard-footer"><span /><span /><span /><b>TRUST / PERFORMANCE / GROWTH</b></div>
           </div>
 
-          {/* Floating accent cards */}
-          <div className="glass animate-float absolute -top-5 -right-3 hidden rounded-2xl px-5 py-3 sm:block">
-            <p className="font-display text-sm font-bold text-neon">
-              100% Client Satisfaction
-            </p>
+          <div className="about-trust-badge">
+            <Star size={16} fill="currentColor" />
+            <span>100% Client Satisfaction</span>
           </div>
-          <div className="glass animate-float-slow absolute -bottom-5 -left-3 hidden rounded-2xl px-5 py-3 sm:block">
-            <p className="font-display text-sm font-bold text-gold">
-              ⚡ Lightning-Fast Delivery
-            </p>
+          <div className="about-delivery-badge">
+            <Zap size={18} fill="currentColor" />
+            <span><strong>Lightning-Fast Delivery</strong><small>From idea to launch, we move faster.</small></span>
+          </div>
+          <div className="about-info-bar">
+            <div><Zap size={18} /><span><strong>Lightning-Fast Delivery</strong><small>From idea to launch, we move faster.</small></span></div>
+            <i />
+            <div><span className="about-globe">◎</span><span><strong>Global Client Base</strong><small>Serving clients across the world.</small></span></div>
           </div>
         </motion.div>
       </div>
+      <div className="about-statement"><span /> TECH <b>|</b> PEOPLE <b>|</b> POSSIBILITY</div>
     </section>
   );
 }

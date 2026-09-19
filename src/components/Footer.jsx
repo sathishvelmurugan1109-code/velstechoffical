@@ -1,4 +1,15 @@
-import { Phone, Mail, Facebook, Instagram } from "lucide-react";
+import { useState } from "react";
+import {
+  ArrowUpRight,
+  Check,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Mail,
+  Phone,
+  Send,
+  Youtube,
+} from "lucide-react";
 import {
   COMPANY,
   NAV_LINKS,
@@ -25,150 +36,102 @@ function WhatsAppIcon({ className = "" }) {
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleSubscribe = (event) => {
+    event.preventDefault();
+    setIsSubscribed(true);
+  };
 
   return (
-    <footer className="relative border-t border-white/5 bg-onyx/70 backdrop-blur-sm">
-      <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-          {/* Brand */}
+    <footer className="footer-hub relative overflow-hidden">
+      <div className="footer-watermark" aria-hidden="true">VT</div>
+      <div className="footer-trace footer-trace-one" aria-hidden="true" />
+      <div className="footer-trace footer-trace-two" aria-hidden="true" />
+      <div className="footer-architecture" aria-hidden="true" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-5 pb-8 pt-8 lg:px-8 lg:pt-12">
+        <section className="footer-cta">
           <div>
-            <a href="#home" className="flex items-center gap-2.5">
-              <img
-                src={logo}
-                alt="Vels Tech logo"
-                width={56}
-                height={56}
-                loading="lazy"
-                className="glow-neon h-14 w-14 rounded-xl transition-transform duration-300 hover:scale-105"
-              />
-              <span className="font-display text-xl font-bold tracking-tight">
-                VELS<span className="text-neon">TECH</span>
-              </span>
-            </a>
-            <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-              Premium technology services — websites, mobile apps, digital
-              marketing &amp; SEO that help your business dominate online.
+            <p className="footer-eyebrow">A new digital chapter starts here</p>
+            <h2>Let’s Build Something Great Together</h2>
+            <p className="footer-cta-copy">
+              Have an idea or project in mind? Let’s turn it into a powerful digital solution.
             </p>
-            <div className="mt-5 flex gap-3">
-              <a
-                href={COMPANY.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Vels Tech on Facebook (velstech offical)"
-                className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-zinc-300 transition-all duration-300 hover:border-neon hover:bg-neon hover:text-void"
-              >
-                <Facebook size={18} />
-              </a>
-              <a
-                href={COMPANY.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Vels Tech on Instagram (vels_tech_offical)"
-                className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-zinc-300 transition-all duration-300 hover:border-neon hover:bg-neon hover:text-void"
-              >
-                <Instagram size={18} />
-              </a>
-            </div>
           </div>
-
-          {/* Quick links */}
-          <nav aria-label="Footer quick links">
-            <h3 className="font-display text-sm font-bold uppercase tracking-widest text-neon">
-              Quick Links
-            </h3>
-            <ul className="mt-4 space-y-2.5">
-              {NAV_LINKS.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-zinc-400 transition-colors hover:text-neon"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Services */}
-          <nav aria-label="Footer services">
-            <h3 className="font-display text-sm font-bold uppercase tracking-widest text-neon">
-              Services
-            </h3>
-            <ul className="mt-4 space-y-2.5">
-              {SERVICES.slice(0, 6).map((service) => (
-                <li key={service.title}>
-                  <a
-                    href="#services"
-                    className="text-sm text-zinc-400 transition-colors hover:text-neon"
-                  >
-                    {service.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Contact */}
-          <div>
-            <h3 className="font-display text-sm font-bold uppercase tracking-widest text-neon">
-              Contact
-            </h3>
-            <ul className="mt-4 space-y-3 text-sm text-zinc-400">
-              <li>
-                <a
-                  href={`tel:${COMPANY.phoneTel}`}
-                  className="flex items-center gap-2.5 transition-colors hover:text-neon"
-                >
-                  <Phone size={16} className="shrink-0 text-neon" />
-                  Mobile: 95977 68607
-                </a>
-              </li>
-              <li>
-                <a
-                  href={buildWhatsAppLink(DEFAULT_WA_MESSAGE)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 transition-colors hover:text-neon"
-                >
-                  <WhatsAppIcon className="h-4 w-4 shrink-0 text-neon" />
-                  Chat on WhatsApp
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`mailto:${COMPANY.email}`}
-                  className="flex items-center gap-2.5 transition-colors hover:text-neon"
-                >
-                  <Mail size={16} className="shrink-0 text-neon" />
-                  {COMPANY.email}
-                </a>
-              </li>
-              <li className="pt-1 text-xs text-zinc-500">{COMPANY.hours}</li>
-            </ul>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Bottom bar */}
-      <div className="border-t border-white/5">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-5 text-xs text-zinc-500 sm:flex-row lg:px-8">
-          <p>
-            © {year}{" "}
-            <span className="font-semibold text-zinc-300">{COMPANY.name}</span>.
-            All rights reserved.
-          </p>
-          <p>
-            Designed &amp; Developed with{" "}
-            <span className="text-neon">⚡</span> by Vels Tech
-          </p>
-          <a href="#home" className="transition-colors hover:text-neon">
-            Back to Top ↑
+          <a href="#contact" className="footer-cta-button">
+            Get Free Consultation <ArrowUpRight size={18} />
           </a>
+        </section>
+
+        <div className="footer-grid">
+          <section className="footer-brand-column">
+            <a href="#home" className="footer-logo-link" aria-label="Vels Tech home">
+              <img src={logo} alt="Vels Tech logo" width={220} height={220} loading="lazy" />
+            </a>
+            <p className="footer-kicker">TECH <i /> PEOPLE <i /> POSSIBILITY</p>
+            <p className="footer-description">
+              Premium technology services — websites, mobile apps, digital marketing &amp; SEO that help your business dominate online.
+            </p>
+            <div className="footer-socials" aria-label="Social links">
+              <a href={COMPANY.facebook} target="_blank" rel="noopener noreferrer" aria-label="Vels Tech on Facebook"><Facebook size={17} /></a>
+              <a href={COMPANY.instagram} target="_blank" rel="noopener noreferrer" aria-label="Vels Tech on Instagram"><Instagram size={17} /></a>
+              <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="Vels Tech on LinkedIn"><Linkedin size={17} /></a>
+              <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" aria-label="Vels Tech on YouTube"><Youtube size={17} /></a>
+            </div>
+            <div className="footer-circuit" aria-hidden="true"><span /><span /><span /></div>
+          </section>
+
+          <nav aria-label="Footer quick links">
+            <p className="footer-column-label">Explore</p>
+            <h3>Quick Links</h3>
+            <ul className="footer-link-list">
+              {NAV_LINKS.map((link) => (
+                <li key={link.href}><a href={link.href}><span>↗</span>{link.label}</a></li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav aria-label="Footer services">
+            <p className="footer-column-label">What we do</p>
+            <h3>Services</h3>
+            <ul className="footer-link-list">
+              {SERVICES.slice(0, 6).map((service) => (
+                <li key={service.title}><a href="#services"><span>↗</span>{service.title}</a></li>
+              ))}
+            </ul>
+          </nav>
+
+          <section>
+            <p className="footer-column-label">Start a conversation</p>
+            <h3>CONTACT US</h3>
+            <div className="footer-contact-list">
+              <a href={`tel:${COMPANY.phoneTel}`} className="footer-contact-card"><Phone size={17} /><span><strong>Mobile</strong><small>95977 68607</small></span></a>
+              <a href={buildWhatsAppLink(DEFAULT_WA_MESSAGE)} target="_blank" rel="noopener noreferrer" className="footer-contact-card"><WhatsAppIcon className="h-[17px] w-[17px]" /><span><strong>Chat on WhatsApp</strong><small>We usually reply quickly</small></span></a>
+              <a href={`mailto:${COMPANY.email}`} className="footer-contact-card"><Mail size={17} /><span><strong>{COMPANY.email}</strong><small>Send us your brief</small></span></a>
+              <div className="footer-hours"><span />{COMPANY.hours}</div>
+            </div>
+          </section>
+
+          <section className="footer-newsletter">
+            <div><p className="footer-column-label">The signal</p><h3>Stay Updated</h3><p>Get the latest updates, insights and tech tips from Vels Tech.</p></div>
+            <form onSubmit={handleSubscribe} className="footer-subscribe-form">
+              <label className="sr-only" htmlFor="footer-email">Email address</label>
+              <input id="footer-email" type="email" required placeholder="Enter your email" aria-label="Enter your email" />
+              <button type="submit" aria-label={isSubscribed ? "Subscribed" : "Subscribe to updates"}>{isSubscribed ? <Check size={19} /> : <Send size={19} />}</button>
+            </form>
+            <p className="footer-privacy">{isSubscribed ? "You’re on the list. Welcome to the signal." : "No spam. Only valuable content."}</p>
+          </section>
         </div>
       </div>
 
+      <div className="footer-bottom relative z-10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-5 text-xs lg:flex-row lg:px-8">
+          <p>© {year} <span>{COMPANY.name}</span>. All rights reserved.</p>
+          <p>Designed &amp; Developed with <b>⚡</b> by Vels Tech</p>
+          <a href="#home">Back to Top <span>↑</span></a>
+        </div>
+      </div>
     </footer>
   );
 }
