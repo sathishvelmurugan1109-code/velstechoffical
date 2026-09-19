@@ -142,7 +142,7 @@ export default function Navbar() {
         <button
           ref={toggleRef}
           type="button"
-          className="-mr-2 grid h-11 w-11 shrink-0 place-items-center text-white transition-colors hover:text-gold lg:hidden"
+          className="grid h-11 w-11 shrink-0 place-items-center text-white transition-colors hover:text-gold lg:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
