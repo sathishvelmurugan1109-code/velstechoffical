@@ -91,7 +91,7 @@ try {
   if (missingIds.length) fail(`Missing required section ids: ${missingIds.join(", ")}`);
   else pass(`Core sections present (${requiredIds.join(", ")})`);
 
-  const { COMPANY } = await server.ssrLoadModule("/src/data/site.js");
+  const { COMPANY, SOCIALS } = await server.ssrLoadModule("/src/data/site.js");
   if (!html.includes(`wa.me/${COMPANY.whatsapp}`)) {
     fail(`No WhatsApp link found for ${COMPANY.whatsapp}.`);
   } else {
@@ -145,6 +145,34 @@ try {
     pass("Contact details match index.html (meta + JSON-LD)");
   }
 
+  // Every configured profile must link to a real profile — not a platform home
+  // page — be wired into the markup, and be advertised in index.html. The
+  // footer once hardcoded `https://www.linkedin.com`: an icon that looked live
+  // and went nowhere, which the first check below is here to catch.
+  const bareRoots = SOCIALS.filter((social) => {
+    try {
+      return !new URL(social.href).pathname.replace(/\/+$/, "");
+    } catch {
+      return true; // not a usable absolute URL
+    }
+  });
+  const unwired = SOCIALS.filter((social) => !html.includes(social.href));
+  const unlisted = SOCIALS.filter((social) => !indexSrc.includes(social.href));
+
+  if (bareRoots.length) {
+    fail(
+      `Social links pointing at a platform home page, not a profile: ${bareRoots
+        .map((social) => social.label)
+        .join(", ")}`
+    );
+  } else if (unwired.length) {
+    fail(`Social profiles defined but never rendered: ${unwired.map((social) => social.label).join(", ")}`);
+  } else if (unlisted.length) {
+    fail(`Social profiles missing from index.html sameAs: ${unlisted.map((social) => social.label).join(", ")}`);
+  } else {
+    pass(`All ${SOCIALS.length} social profiles are real links, rendered and listed in index.html`);
+  }
+
   const published = [
     "Projects Completed",
     "Happy Clients",
@@ -163,6 +191,14 @@ try {
     ["4.9/5", "client-satisfaction score the business never published"],
     ["100% Commitment to Growth", "statistic the business never published"],
     ["v.elstechoffical", "mailbox that does not match index.html"],
+    [
+      'href="https://www.linkedin.com"',
+      "social icon pointing at the platform home page, not the Vels Tech profile",
+    ],
+    [
+      'href="https://www.youtube.com"',
+      "social icon pointing at the platform home page, not a Vels Tech channel",
+    ],
   ];
   const offenders = [];
 

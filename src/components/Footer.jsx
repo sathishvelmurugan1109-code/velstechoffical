@@ -18,12 +18,21 @@ import {
   COMPANY,
   NAV_LINKS,
   SERVICES,
+  SOCIALS,
   buildWhatsAppLink,
   DEFAULT_WA_MESSAGE,
 } from "../data/site";
 import Reveal from "./Reveal";
 import WhatsAppMark from "./WhatsAppMark";
 import logo from "../assets/profile.png";
+
+/** Social icon per configured platform id (see SOCIALS in data/site.js). */
+const SOCIAL_ICONS = {
+  facebook: Facebook,
+  instagram: Instagram,
+  linkedin: Linkedin,
+  youtube: Youtube,
+};
 
 // ============================================================
 // FOOTER — the closing premium section.
@@ -157,43 +166,24 @@ export default function Footer() {
                 Premium technology services — websites, mobile apps, digital
                 marketing &amp; SEO that help your business dominate online.
               </p>
+              {/* Driven by SOCIALS: a platform without a real profile URL is
+                  never rendered, so no icon can link to a platform home page. */}
               <div className="mt-5 flex flex-wrap gap-2.5">
-                <a
-                  href={COMPANY.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-round"
-                  aria-label="Vels Tech on Facebook"
-                >
-                  <Facebook size={17} />
-                </a>
-                <a
-                  href={COMPANY.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-round"
-                  aria-label="Vels Tech on Instagram"
-                >
-                  <Instagram size={17} />
-                </a>
-                <a
-                  href="https://www.linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-round"
-                  aria-label="Vels Tech on LinkedIn"
-                >
-                  <Linkedin size={17} />
-                </a>
-                <a
-                  href="https://www.youtube.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-round"
-                  aria-label="Vels Tech on YouTube"
-                >
-                  <Youtube size={17} />
-                </a>
+                {SOCIALS.map((social) => {
+                  const Icon = SOCIAL_ICONS[social.id];
+                  return Icon ? (
+                    <a
+                      key={social.id}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="social-round"
+                      aria-label={`Vels Tech on ${social.label}`}
+                    >
+                      <Icon size={17} />
+                    </a>
+                  ) : null;
+                })}
               </div>
             </section>
 

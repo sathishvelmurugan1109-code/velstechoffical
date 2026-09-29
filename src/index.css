@@ -789,6 +789,29 @@ button {
   }
 }
 
+/* Small laptops (1024–1199px): the bar carries six links, three social
+   buttons and the gold WhatsApp pill. Tighten the row instead of letting the
+   third icon push the pill off the edge. */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .nav__links {
+    gap: 0.1rem;
+  }
+
+  .nav-link {
+    padding-inline: 0.62rem;
+  }
+
+  .nav-link::after {
+    left: 0.62rem;
+    right: 0.62rem;
+  }
+
+  .nav-social {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 /* Mobile trigger — 44px minimum touch target */
 .nav-burger {
   display: grid;

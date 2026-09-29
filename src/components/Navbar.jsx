@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, Facebook, Instagram, Menu, MessageCircle, X } from "lucide-react";
-import { COMPANY, NAV_LINKS, buildWhatsAppLink, DEFAULT_WA_MESSAGE } from "../data/site";
+import { ArrowUpRight, Facebook, Instagram, Linkedin, Menu, MessageCircle, X, Youtube } from "lucide-react";
+import { COMPANY, NAV_LINKS, SOCIALS, buildWhatsAppLink, DEFAULT_WA_MESSAGE } from "../data/site";
 import logo from "../assets/profile.png";
 
 // ============================================================
@@ -15,6 +15,14 @@ import logo from "../assets/profile.png";
 // ============================================================
 
 const MOBILE_MENU_ID = "mobile-menu";
+
+/** Social icon per configured platform id (see SOCIALS in data/site.js). */
+const SOCIAL_ICONS = {
+  facebook: Facebook,
+  instagram: Instagram,
+  linkedin: Linkedin,
+  youtube: Youtube,
+};
 
 export default function Navbar() {
   const shouldReduceMotion = useReducedMotion();
@@ -175,24 +183,21 @@ export default function Navbar() {
 
           {/* Desktop actions */}
           <div className="nav__actions">
-            <a
-              href={COMPANY.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nav-social"
-              aria-label="Vels Tech on Facebook"
-            >
-              <Facebook size={16} />
-            </a>
-            <a
-              href={COMPANY.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nav-social"
-              aria-label="Vels Tech on Instagram"
-            >
-              <Instagram size={16} />
-            </a>
+            {SOCIALS.map((social) => {
+              const Icon = SOCIAL_ICONS[social.id];
+              return Icon ? (
+                <a
+                  key={social.id}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="nav-social"
+                  aria-label={`Vels Tech on ${social.label}`}
+                >
+                  <Icon size={16} />
+                </a>
+              ) : null;
+            })}
             <a
               href={buildWhatsAppLink(DEFAULT_WA_MESSAGE)}
               target="_blank"
@@ -272,24 +277,21 @@ export default function Navbar() {
                 </li>
 
                 <li className="flex justify-center gap-3 pt-4">
-                  <a
-                    href={COMPANY.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="nav-social"
-                    aria-label="Vels Tech on Facebook"
-                  >
-                    <Facebook size={16} />
-                  </a>
-                  <a
-                    href={COMPANY.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="nav-social"
-                    aria-label="Vels Tech on Instagram"
-                  >
-                    <Instagram size={16} />
-                  </a>
+                  {SOCIALS.map((social) => {
+                    const Icon = SOCIAL_ICONS[social.id];
+                    return Icon ? (
+                      <a
+                        key={social.id}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="nav-social"
+                        aria-label={`Vels Tech on ${social.label}`}
+                      >
+                        <Icon size={16} />
+                      </a>
+                    ) : null;
+                  })}
                 </li>
               </ul>
             </div>

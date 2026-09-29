@@ -95,15 +95,23 @@ asserts that the numbers and contact details are the ones the business actually 
 
 ```
 ✓ Contact details match index.html (meta + JSON-LD)   # phone + email, no drift
+✓ All 3 social profiles are real links, rendered and listed in index.html
 ✓ All 4 published metrics rendered                    # 50+ · 30+ · 5+ · 99%
 ✓ No invented statistics or stale contact data in src/
 ```
 
 The last check scans `src/` for claims nobody approved. Its `forbidden` list is
 deliberately literal and lives at the bottom of `scripts/render-check.mjs` — when the
-business confirms such a number, delete that one line there. Two real regressions this
+business confirms such a number, delete that one line there. Real regressions this
 already blocks: a `4.9/5` satisfaction score that contradicted the About panel's `99%`,
-and a mistyped mailbox that no longer matched `index.html`.
+a mistyped mailbox that no longer matched `index.html`, and social icons hardcoded to
+`https://www.linkedin.com` / `https://www.youtube.com` — i.e. pointing at a platform
+home page instead of a Vels Tech profile.
+
+Adding a social platform is a one-line change in `src/data/site.js` (`COMPANY.linkedin`
+and friends). `SOCIALS` drops any platform without a URL, so the navbar, the mobile
+drawer, the contact section and the footer all stay correct — and an unconfigured
+platform is never rendered as a dead icon.
 
 Other causes of a blank page:
 

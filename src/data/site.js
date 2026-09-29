@@ -26,10 +26,10 @@ export const COMPANY = {
   facebookLabel: "velstech offical",
   instagram: "https://www.instagram.com/vels_tech_offical",
   instagramLabel: "vels_tech_offical",
-  // Not configured yet — leave empty and the icon stays hidden.
-  // Add the real profile URL (e.g. "https://www.linkedin.com/company/vels-tech")
-  // and the social icon appears automatically in the footer + contact section.
-  linkedin: "",
+  // LinkedIn is live. YouTube is not configured yet — leave a URL empty and
+  // its icon is never rendered anywhere (see SOCIALS below), so the site can
+  // never ship an icon that links to a platform home page instead of a profile.
+  linkedin: "https://www.linkedin.com/in/vels-tech-8b9907437",
   youtube: "",
 };
 
