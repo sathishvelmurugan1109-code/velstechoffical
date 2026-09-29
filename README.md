@@ -13,7 +13,7 @@ A fully responsive, high-end React.js website for **Vels Tech** — a premium 20
 | 🎨 **Design system** | One dark luxury system — `#040406` void → `#0D0D11` carbon surfaces, strategic gold (`#FFD000` + `#FFE9A3` for accessible text), soft white, muted grey. Gold is reserved for CTAs, active states, key numbers, hairlines and light trails |
 | 🖋 **Typography** | Space Grotesk (display) + Inter (text) only, on a single fluid scale (`display-1/2/3`, `lead`, `copy`, `kicker`, `label`) |
 | 🧩 **Sections** | Hero ("Vels Tech core": orbiting gold rings + glass brand disc + light trails), capability band (`#portfolio`), 8 service cards + 01→04 delivery flow, About story + live metrics panel, Contact (4 channels + WhatsApp form), premium footer with gold light waves |
-| 🎬 **Cinematic graphics** | Layered hero stage — atmospheric light field, volumetric beams, a CSS 3D perspective floor with a glowing horizon, floating glass shards, focus vignette, and an orbit-core with an aurora halo; plus a page-wide light that drifts with scroll depth |
+| 🎬 **Cinematic graphics** | Layered hero stage — atmospheric light field, volumetric beams, a CSS 3D perspective floor with a glowing horizon, focus vignette, and an orbit-core with an aurora halo; plus a page-wide light that drifts with scroll depth |
 | ✨ **Animation** | ~1.4 s skippable intro (gold sweep + hairline), Framer Motion scroll reveals, word/mask/blur text reveals, magnetic buttons, card cursor bloom, pointer-tilt hero core, gold reading spine, travelling section hairlines, footer light waves — `prefers-reduced-motion` respected everywhere |
 | 💬 **WhatsApp** | Contact form + floating button + navbar + footer deep-link to `wa.me/919597768607` with pre-filled inquiry details, plus a popup-blocked fallback link |
 | 🔍 **SEO** | Meta tags, Open Graph, Twitter cards, JSON-LD structured data, semantic HTML (`header/main/section/footer`), PNG favicon, canonical config preserved |
@@ -38,14 +38,14 @@ Everything visual lives in **`src/index.css`** (one file, 17 numbered sections):
 | **Layout** | `.shell`, `.section` rhythm, `.section-rule` (gold hairline with a slow travelling highlight), `.amb-grid`, `.amb-orb`, `.trail` |
 | **§18 Lighting & continuity** | One light field per section (`--lit-x/y/size/strength/hue`), so the light source *moves* as you scroll — plus `.page-light`, which drifts with scroll depth behind all content |
 | **§19 Card hierarchy** | Five archetypes: `.card`, `--feature` (gold rim + corner bloom), `--primary` (animated gradient rim), `--info` (flat, left light accent), `--cta`; with `.card--interactive` + `.card__bloom` cursor glow |
-| **§20 Hero stage** | `.stage__field` (atmosphere), `__beam` (volumetric), `__floor`/`__grid` (CSS 3D perspective floor), `__horizon`, `__shard`, `__vignette`, `.core-depth` (pointer tilt), `.aurora` (core halo), `.kpi` (metric strip) |
+| **§20 Hero stage** | `.stage__field` (atmosphere), `__beam` (volumetric), `__floor`/`__grid` (CSS 3D perspective floor), `__horizon`, `__vignette`, `.core-depth` (pointer tilt), `.aurora` (core halo), `.kpi` (metric strip) |
 | **§21 Interaction layer** | `.progress` reading spine, `.aura` pointer light |
 | **Primitives & buttons** | `.chip`, `.icon-chip`, `.live`; one `.btn` with `--gold`, `--outline`, `--ghost`, `--sm`, `--block` |
 | **Sections** | `.nav`/`.drawer`, `.hero`/`.core`, `.band`, `.svc-card`/`.flow`, `.about-*`, `.contact-*`/`.field`, `.footer`/`.cta-panel`, `.intro`, `.wa-float` |
 
 **Motion rules the whole site follows:** only `transform`/`opacity` are animated — never layout properties; every ambient loop is a single named keyframe; hover styles live behind `@media (hover: hover) and (pointer: fine)` so touch devices get clean `:active` feedback instead of dead styles; and one global `prefers-reduced-motion` block stops every loop for users who ask for it.
 
-**Performance contract for the new layers:** the whole hero stage is driven by *one* rAF scheduler (`useStageMotion`) that publishes `--px`/`--py`/`--scrolly` as CSS custom properties, so React never re-renders during scroll or pointer movement. It self-disables on small screens and for reduced-motion users. The cursor aura's lerp loop cancels itself once settled, the scan/beams/shards are hidden on touch, the particle canvas adapts its population to the device and pauses when the tab is hidden, and the KPI/stat counters animate only once in view.
+**Performance contract for the new layers:** the whole hero stage is driven by *one* rAF scheduler (`useStageMotion`) that publishes `--px`/`--py`/`--scrolly` as CSS custom properties, so React never re-renders during scroll or pointer movement. It self-disables on small screens and for reduced-motion users. The cursor aura's lerp loop cancels itself once settled, the scan/beams are hidden on touch, the particle canvas adapts its population to the device and pauses when the tab is hidden, and the KPI/stat counters animate only once in view.
 
 **Breakpoints:** 400 (small phones) · 640 · 768 (tablet) · 1024 (laptop) · 1200 · 1536 (large desktop).
 

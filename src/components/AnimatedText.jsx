@@ -13,7 +13,24 @@ import { EASE } from "../lib/motion";
 // screen readers read "Website Development" — never "W e b s i t e".
 // Passing `aria-hidden="true"` (as the callers do inside a labelled
 // heading) hides the whole thing instead, with no duplication.
+//
+// !! MASKED REVEALS — READ BEFORE EDITING !!
+// The `mask` and `lines` modes slide a span up out of an `overflow: hidden`
+// wrapper. The `whileInView` observer therefore MUST sit on the *mask*, never
+// on the span inside it: an IntersectionObserver clips a target's rect against
+// every ancestor's overflow, so a span parked at `y: 108%` below its own mask
+// reports a zero intersection rect and `isIntersecting` never becomes true.
+// Observing it there is a deadlock — the text can only be revealed once
+// visible, but it is never *seen* to become visible, so it stays clipped
+// forever. The mask is therefore a `motion.span` carrying `whileInView`, and
+// the inner span inherits the resulting variant label from it. Do not "tidy"
+// the mask back into a plain `<span>`.
 // ============================================================
+
+/* Orchestrator: observes visibility, animates nothing itself. The inner
+   span inherits its label via variant propagation. */
+const ORCHESTRATOR = { hidden: {}, show: {} };
+
 
 export default function AnimatedText({
   text,
@@ -50,17 +67,28 @@ export default function AnimatedText({
     return (
       <Component className={className} style={wrapperStyle} {...props}>
         {screenReaderCopy}
-        <span aria-hidden="true" className="block overflow-hidden">
+        <motion.span
+          aria-hidden="true"
+          className="block overflow-hidden"
+          variants={ORCHESTRATOR}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.4 }}
+        >
           <motion.span
             className="block"
-            initial={{ y: "112%", opacity: 0.2 }}
-            whileInView={{ y: "0%", opacity: 1 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.85, delay, ease: EASE }}
+            variants={{
+              hidden: { y: "112%", opacity: 0.2 },
+              show: {
+                y: "0%",
+                opacity: 1,
+                transition: { duration: 0.85, delay, ease: EASE },
+              },
+            }}
           >
             {value}
           </motion.span>
-        </span>
+        </motion.span>
       </Component>
     );
   }
@@ -73,17 +101,32 @@ export default function AnimatedText({
         {screenReaderCopy}
         <span aria-hidden="true">
           {lines.map((line, index) => (
-            <span className="block overflow-hidden" key={`line-${index}`}>
+            <motion.span
+              key={`line-${index}`}
+              className="block overflow-hidden"
+              variants={ORCHESTRATOR}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.4 }}
+            >
               <motion.span
                 className="block"
-                initial={{ y: "108%", filter: "blur(6px)" }}
-                whileInView={{ y: "0%", filter: "blur(0px)" }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.8, delay: delay + index * 0.09, ease: EASE }}
+                variants={{
+                  hidden: { y: "108%", filter: "blur(6px)" },
+                  show: {
+                    y: "0%",
+                    filter: "blur(0px)",
+                    transition: {
+                      duration: 0.8,
+                      delay: delay + index * 0.09,
+                      ease: EASE,
+                    },
+                  },
+                }}
               >
                 {line}
               </motion.span>
-            </span>
+            </motion.span>
           ))}
         </span>
       </Component>

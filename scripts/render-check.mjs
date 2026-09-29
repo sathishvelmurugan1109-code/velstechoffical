@@ -126,6 +126,40 @@ try {
   } else {
     pass(`All ${cards.length} card archetypes applied`);
   }
+
+  // --- Reveal masks must not deadlock the IntersectionObserver ---------------
+  // A `whileInView` target parked inside an `overflow: hidden` mask is clipped
+  // out of its own observer: the browser intersects the target's rect against
+  // every ancestor's overflow, so `isIntersecting` can never flip to true and
+  // the reveal never plays. The heading then stays invisible forever while
+  // still occupying its full layout box — a blank band on the page.
+  //
+  // The mask must therefore be the motion element carrying `whileInView`,
+  // never a plain wrapper around it. This shipped once and blanked the entire
+  // hero headline, so the shape is asserted rather than trusted to review.
+  //
+  // A plain `<span>` is matched only when it *itself* carries the
+  // `overflow-hidden` mask class (`[^>]*` cannot cross the tag's closing `>`)
+  // and a `whileInView` appears inside it, before its own `</span>`. That
+  // distinguishes a real mask from a plain grouping wrapper that merely sits
+  // next to one, and `<motion.span` cannot match at all.
+  const maskDeadlock =
+    /<span\b[^>]*overflow-hidden[^>]*>(?:(?!<\/span>)[\s\S]){0,400}?whileInView/;
+  const deadlocked = [];
+
+  for (const file of await sourceFiles(join(ROOT, "src"))) {
+    if (maskDeadlock.test(await readFile(file, "utf8"))) {
+      deadlocked.push(file.slice(ROOT.length));
+    }
+  }
+
+  if (deadlocked.length) {
+    fail(
+      `Text hidden behind its own reveal mask — whileInView can never fire:\n    ${deadlocked.join("\n    ")}`
+    );
+  } else {
+    pass("No reveal mask traps its own whileInView observer");
+  }
   // --- Business facts ---------------------------------------------------
   // Two rules this project has already broken once, so they are asserted:
   //   1. every contact detail the UI renders must also be what index.html

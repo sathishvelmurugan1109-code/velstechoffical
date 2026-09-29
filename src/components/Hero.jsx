@@ -26,10 +26,12 @@ import logo from "../assets/profile.png";
 // ============================================================
 // HERO — "the Vels Tech core".
 //
-// The laptop/phone mockups are replaced by an abstract system: concentric
-// gold rings, a glass core holding the real brand mark, orbiting service
-// nodes and two light trails. Every CTA, statistic and label is content the
-// site already had — nothing invented.
+// The planet is the focal point: a shaded dark sphere with a gold
+// energy rim, the real brand mark on its face, three tilted orbital
+// shells each carrying a travelling gold node, a lit plinth beneath
+// it and floating crystals. The service names ride the orbits.
+// Every CTA, statistic and label is content the site already had —
+// nothing invented.
 // ============================================================
 
 /** Service names cycled in the eyebrow — all real entries from site.js. */
@@ -45,6 +47,22 @@ const CORE_NODES = [
   { icon: Smartphone, label: "Mobile Apps", cls: "core__chip--2" },
   { icon: Megaphone, label: "Digital Marketing", cls: "core__chip--3" },
   { icon: Search, label: "SEO Growth", cls: "core__chip--4" },
+];
+
+/* Orbital shells. `--orbit-squash` flattens the circle into the tilted
+   ellipse and is also divided back out on the travelling node, so the
+   node stays round while it rides the ring. */
+const ORBITS = [
+  { cls: "core__orbit--outer", rotate: "-7deg", squash: 0.34, speed: "26s", dir: "normal" },
+  { cls: "core__orbit--mid", rotate: "17deg", squash: 0.52, speed: "38s", dir: "reverse" },
+  { cls: "core__orbit--tilt", rotate: "-26deg", squash: 0.66, speed: "46s", dir: "normal" },
+];
+
+/* Small gold crystals drifting through the scene — depth props only. */
+const CRYSTALS = [
+  { cls: "core__crystal--1" },
+  { cls: "core__crystal--2" },
+  { cls: "core__crystal--3" },
 ];
 
 const SERVICE_STRIP = [
@@ -122,8 +140,8 @@ export default function Hero() {
       aria-label="Hero"
       className="hero section--lit"
     >
-      {/* ---------- Cinematic stage: light field, beams, perspective floor,
-           floating shards and a focus vignette. Purely decorative. ---------- */}
+      {/* ---------- Cinematic stage: light field, beams, perspective floor
+           and a focus vignette. Purely decorative. ---------- */}
       <div className="stage" aria-hidden="true">
         <span className="stage__field" />
         <span className="stage__floor">
@@ -132,9 +150,6 @@ export default function Hero() {
         <span className="stage__horizon" />
         <span className="stage__beam stage__beam--a" />
         <span className="stage__beam stage__beam--b" />
-        <span className="stage__shard stage__shard--1" />
-        <span className="stage__shard stage__shard--2" />
-        <span className="stage__shard stage__shard--3" />
         <span className="stage__vignette" />
       </div>
 
@@ -253,26 +268,64 @@ export default function Hero() {
               transition={{ duration: 1.05, delay: 0.18, ease: EASE }}
               className="core"
             >
-              <span className="aurora" />
-              <span className="core__glow" />
-              <span className="core__ring core__ring--outer" />
-              <span className="core__ring core__ring--mid">
-                <span className="core__node" />
-              </span>
-              <span className="core__ring core__ring--inner" />
-              <span className="core__trail core__trail--a" />
-              <span className="core__trail core__trail--b" />
+              <div className="core__scene">
+                <span className="aurora" />
+                <span className="core__glow" />
 
-              <span className="core__disc">
-                <img
-                  src={logo}
-                  alt=""
-                  width={148}
-                  height={148}
-                  fetchpriority="high"
-                  decoding="async"
-                />
-              </span>
+                {/* ---------- The planet ---------- */}
+                <span className="core__planet">
+                  <span className="core__surface" />
+                  <span className="core__rim" />
+                  <span className="core__glowline" />
+                  <img
+                    className="core__mark"
+                    src={logo}
+                    alt=""
+                    width={176}
+                    height={176}
+                    fetchpriority="high"
+                    decoding="async"
+                  />
+                </span>
+
+                {/* ---------- Orbital shells, each with a travelling node ----------
+                    The node must be INSIDE the spinning layer, and the squash
+                    must be applied by the shell beneath that spin — otherwise
+                    the node would ride a full circle instead of the tilted
+                    ellipse the eye actually sees. */}
+                {ORBITS.map(({ cls, rotate, squash, speed, dir }) => (
+                  <span
+                    key={cls}
+                    className={`core__orbit ${cls}`}
+                    style={{
+                      "--orbit-rotate": rotate,
+                      "--orbit-squash": squash,
+                      "--orbit-speed": speed,
+                      "--orbit-dir": dir,
+                    }}
+                  >
+                    <span className="core__spin">
+                      <span className="core__track">
+                        <span className="core__node" />
+                      </span>
+                    </span>
+                  </span>
+                ))}
+
+                {/* ---------- Plinth the planet rests on ---------- */}
+                <span className="core__plinth">
+                  <span className="core__plinth-top" />
+                  <span className="core__plinth-body" />
+                  <span className="core__pool" />
+                </span>
+
+                {/* ---------- Drifting crystals + light trails ---------- */}
+                {CRYSTALS.map(({ cls }) => (
+                  <span key={cls} className={`core__crystal ${cls}`} />
+                ))}
+                <span className="core__trail core__trail--a" />
+                <span className="core__trail core__trail--b" />
+              </div>
 
               {CORE_NODES.map(({ icon: NodeIcon, label, cls }) => (
                 <span key={label} className={`core__chip ${cls}`}>
