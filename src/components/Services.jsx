@@ -12,18 +12,19 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
-import {
-  SERVICES,
-  DEFAULT_WA_MESSAGE,
-  buildWhatsAppLink,
-} from "../data/site";
+import { SERVICES, DEFAULT_WA_MESSAGE, buildWhatsAppLink } from "../data/site";
 import { serviceAnchorId } from "../lib/interactions";
+import { stagger, useSpotlight } from "../lib/motion";
+import Reveal from "./Reveal";
+import SectionHeading from "./SectionHeading";
 
-/* ============================================================
-   Minimal gold line-art visuals — one per service.
-   Rendered as a low-opacity watermark inside each card so the
-   artwork adds depth without competing with the copy.
-   ============================================================ */
+// ============================================================
+// SERVICES — 8 capabilities on one card system.
+// Anchor ids, the featured flag, the line-art visuals, the WhatsApp CTA and
+// the 01→04 delivery flow are all preserved from the previous build.
+// ============================================================
+
+/* Minimal gold line-art — one per service, used as a hover watermark. */
 const svgProps = {
   viewBox: "0 0 120 120",
   fill: "none",
@@ -36,7 +37,6 @@ const svgProps = {
   focusable: "false",
 };
 
-/* 01 — laptop / code interface */
 const WebVisual = () => (
   <svg {...svgProps}>
     <path d="M18 30h84a4 4 0 0 1 4 4v48H14V34a4 4 0 0 1 4-4Z" />
@@ -47,7 +47,6 @@ const WebVisual = () => (
   </svg>
 );
 
-/* 02 — smartphone devices */
 const MobileVisual = () => (
   <svg {...svgProps}>
     <rect x="26" y="16" width="36" height="88" rx="8" />
@@ -58,7 +57,6 @@ const MobileVisual = () => (
   </svg>
 );
 
-/* 03 — growth chart */
 const GrowthVisual = () => (
   <svg {...svgProps}>
     <path d="M16 16v90h90" />
@@ -70,7 +68,6 @@ const GrowthVisual = () => (
   </svg>
 );
 
-/* 04 — browser / search results */
 const SeoVisual = () => (
   <svg {...svgProps}>
     <rect x="12" y="24" width="96" height="72" rx="9" />
@@ -84,7 +81,6 @@ const SeoVisual = () => (
   </svg>
 );
 
-/* 05 — shopping cart / commerce */
 const CartVisual = () => (
   <svg {...svgProps}>
     <path d="M12 28h12l12 48h52l11-34H32" />
@@ -95,7 +91,6 @@ const CartVisual = () => (
   </svg>
 );
 
-/* 06 — UI / UX design screens */
 const UiVisual = () => (
   <svg {...svgProps}>
     <rect x="12" y="20" width="62" height="46" rx="6" />
@@ -105,7 +100,6 @@ const UiVisual = () => (
   </svg>
 );
 
-/* 07 — cloud / server infrastructure */
 const CloudVisual = () => (
   <svg {...svgProps}>
     <path d="M40 60a17 17 0 0 1 1.5-33 23 23 0 0 1 43 6.5A15 15 0 0 1 82 60H40Z" />
@@ -115,265 +109,201 @@ const CloudVisual = () => (
   </svg>
 );
 
-/* 08 — shield / security system */
 const ShieldVisual = () => (
   <svg {...svgProps}>
     <path d="M60 14l36 14v30c0 23-15 38-36 46-21-8-36-23-36-46V28l36-14Z" />
     <path d="M45 59l11 11 21-23" />
+    <path d="M42 37a21 21 0 0 1 36 0M37 45v11h9V44h-4M83 45v11h-9V44h4" />
+    <path d="M78 69c-4 6-10 9-18 9" />
   </svg>
 );
 
 const VISUALS = {
-  "Website Design & Development": WebVisual,
+  "Website Development": WebVisual,
   "Mobile App Development": MobileVisual,
-  "Performance Marketing": GrowthVisual,
-  "SEO & Local Growth": SeoVisual,
+  "Digital Marketing": GrowthVisual,
+  "SEO Optimization": SeoVisual,
   "E-Commerce Growth": CartVisual,
-  "Brand Identity & Design": UiVisual,
+  "UI/UX Design": UiVisual,
   "Cloud Hosting & DevOps": CloudVisual,
   "Support & Maintenance": ShieldVisual,
 };
 
-/* --- Delivery flow under the service grid: 01 → 04 --- */
+/* Delivery flow: 01 → 04 (unchanged copy) */
 const PROCESS = [
   {
     icon: Compass,
-    title: "Discover",
+    copyTitle: "Discover",
     copy: "A free call to map your goals, audience, scope and budget.",
   },
   {
     icon: PenTool,
-    title: "Design",
+    copyTitle: "Design",
     copy: "Wireframes and a gold-standard UI you approve before code.",
   },
   {
     icon: Code2,
-    title: "Develop",
+    copyTitle: "Develop",
     copy: "Clean, fast, tested build shipped in weekly review sprints.",
   },
   {
     icon: TrendingUp,
-    title: "Grow",
+    copyTitle: "Grow",
     copy: "Launch, then SEO, ads and support to keep the numbers rising.",
   },
 ];
 
-/* --- Reassurance chips closing the section --- */
 const ASSURANCES = [
   { icon: ShieldCheck, label: "Fixed-price quotes" },
   { icon: CalendarCheck, label: "Weekly progress demos" },
   { icon: BadgeCheck, label: "Post-launch support" },
 ];
 
-const fadeUp = {
+const cardVariant = {
   hidden: { opacity: 0, y: 24 },
-  visible: (d = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, delay: d, ease: "easeOut" },
-  }),
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
 };
 
-/** Move the card's gold spotlight to follow the cursor. */
-const trackSpotlight = (event) => {
-  const rect = event.currentTarget.getBoundingClientRect();
-  event.currentTarget.style.setProperty("--mx", `${event.clientX - rect.left}px`);
-  event.currentTarget.style.setProperty("--my", `${event.clientY - rect.top}px`);
-};
+function ServiceCard({ service, index }) {
+  const onSpotlight = useSpotlight();
+  const Visual = VISUALS[service.title] ?? WebVisual;
+  const Icon = service.icon;
+  const titleWords = service.title.split(" ");
+
+  return (
+    <motion.article
+      id={serviceAnchorId(service.title)}
+      variants={cardVariant}
+      onPointerMove={onSpotlight}
+      className={`svc-card card card--interactive${
+        service.featured ? " card--feature" : ""
+      }`}
+    >
+      <span className="card__bloom" aria-hidden="true" />
+
+      <div className="svc-card__top">
+        <span className="svc-card__num">{String(index + 1).padStart(2, "0")}</span>
+        <span className="icon-chip">
+          <Icon size={21} strokeWidth={1.6} />
+        </span>
+      </div>
+
+      {service.featured && (
+        <span className="svc-flag">
+          <Sparkles size={10} strokeWidth={2} />
+          Most Popular
+        </span>
+      )}
+
+      <p className="svc-card__cat">{service.tagline}</p>
+
+      <h3 className="svc-card__title display-3">
+        {titleWords.map((word, wordIndex) => (
+          <span
+            key={`${service.title}-${wordIndex}`}
+            className={wordIndex === titleWords.length - 1 ? "is-accent" : undefined}
+          >
+            {word}
+            {wordIndex < titleWords.length - 1 ? " " : ""}
+          </span>
+        ))}
+      </h3>
+
+      <p className="svc-card__desc">{service.description}</p>
+
+      <ul className="svc-card__list">
+        {service.points.map((point) => (
+          <li key={point}>
+            <CheckCircle2 size={14} strokeWidth={1.8} aria-hidden="true" />
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="svc-card__foot">
+        <a href="#contact" className="link-arrow">
+          Learn more
+          <ArrowRight size={14} />
+        </a>
+        <ArrowUpRight size={15} className="text-dim" aria-hidden="true" />
+      </div>
+
+      <span className="svc-card__art" aria-hidden="true">
+        <Visual />
+      </span>
+    </motion.article>
+  );
+}
 
 export default function Services() {
   const whatsappLink = buildWhatsAppLink(DEFAULT_WA_MESSAGE);
 
   return (
-    <section id="services" aria-labelledby="services-title" className="svc-section">
-      {/* ---------- Ambient background ---------- */}
-      <div className="svc-ambient" aria-hidden="true">
-        <div className="svc-gridbg" />
-        <svg
-          className="svc-circuit"
-          viewBox="0 0 1440 900"
-          preserveAspectRatio="xMidYMid slice"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1"
-        >
-          <path d="M-20 640h360l60-60h300l70 70h280l80-80h330" />
-          <path d="M-20 200h240l70 70h260l60-60h300l90 90h420" />
-          <path d="M240 200v-90M800 270v-140M1180 290v-120M180 640v130M1080 650v120" />
-          <circle cx="360" cy="580" r="5" />
-          <circle cx="800" cy="270" r="5" />
-          <circle cx="1180" cy="290" r="5" />
-          <circle cx="620" cy="650" r="5" />
-        </svg>
-        <div className="svc-glow g1" />
-        <div className="svc-glow g2" />
-        <div className="svc-glow g3" />
-        <div className="svc-edge svc-edge-top" />
-        <div className="svc-edge svc-edge-bottom" />
-        <div className="svc-wordart" aria-hidden="true">
-          Build <br /> Innovate <br /> Grow
-        </div>
+    <section
+      id="services"
+      aria-labelledby="services-title"
+      className="section section-rule section--lit"
+    >
+      <div className="section-glow" aria-hidden="true" />
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div className="amb-grid" />
       </div>
 
-      <div className="relative mx-auto w-full max-w-7xl px-5 lg:px-8">
-        {/* ---------- Section header ---------- */}
-        <header className="svc-header">
-          <motion.span
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
-            className="svc-badge"
-          >
-            <i />
-            Our Services
-          </motion.span>
+      <div className="shell">
+        <SectionHeading
+          id="services-title"
+          tag="Our Services"
+          title="Tech Solutions That"
+          highlight="Scale Your Business"
+          description="End-to-end digital services engineered with modern technologies — one partner for everything your business needs to win online."
+        />
 
-          <motion.h2
-            id="services-title"
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.4 }}
-            custom={0.08}
-            className="svc-title font-display text-white"
-          >
-            Tech Solutions That <span className="text-gradient">Scale</span> Your
-            Business
-          </motion.h2>
-
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.4 }}
-            custom={0.16}
-            className="svc-lead"
-          >
-            End-to-end digital services engineered with modern technologies — one
-            partner for everything your business needs to win online.
-          </motion.p>
-
-          <span className="svc-script" aria-hidden="true">
-            Ideas <br /> Technology <br /> Growth
-          </span>
-        </header>
-
-        {/* ---------- 4 × 2 service grid ---------- */}
-        <div className="svc-grid">
-          {SERVICES.map((service, index) => {
-            const Visual = VISUALS[service.title] ?? WebVisual;
-            const Icon = service.icon;
-
-            return (
-              <motion.article
-                key={service.title}
-                id={serviceAnchorId(service.title)}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.2 }}
-                custom={(index % 4) * 0.07}
-                onMouseMove={trackSpotlight}
-                className="svc-card"
-              >
-                {service.featured && (
-                  <span className="svc-flag">
-                    <Sparkles size={10} strokeWidth={2} />
-                    Most Popular
-                  </span>
-                )}
-
-                <div className="svc-top">
-                  <span className="svc-num">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className="svc-icon">
-                    <Icon size={22} strokeWidth={1.6} />
-                  </span>
-                </div>
-
-                <p className="svc-cat">{service.tagline}</p>
-                <h3 className="svc-name font-display">{service.title}</h3>
-                <p className="svc-desc">{service.description}</p>
-
-                <ul className="svc-list">
-                  {service.points.map((point) => (
-                    <li key={point}>
-                      <CheckCircle2 size={14} strokeWidth={1.8} />
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="svc-foot">
-                  <a href="#contact" className="svc-more">
-                    Learn More
-                    <ArrowRight size={14} />
-                  </a>
-                  <ArrowUpRight size={14} className="svc-arrow" aria-hidden="true" />
-                </div>
-
-                <span className="svc-vis">
-                  <Visual />
-                </span>
-              </motion.article>
-            );
-          })}
-        </div>
+        <motion.div
+          className="svc-grid"
+          variants={stagger(0.07, 0.08)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.12 }}
+        >
+          {SERVICES.map((service, index) => (
+            <ServiceCard key={service.title} service={service} index={index} />
+          ))}
+        </motion.div>
 
         {/* ---------- Delivery flow: 01 → 04 ---------- */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.25 }}
-          className="svc-flow"
-        >
-          <div className="svc-flow-head">
-            <span className="svc-flow-kicker">
-              <i />
-              How we work
-            </span>
-
-            <h3 className="svc-flow-title font-display">
-              From first call to <span className="text-gradient">growth</span> — in
-              four clean steps
+        <Reveal className="flow" delay={0.05} y={26} amount={0.15}>
+          <div className="flow__head">
+            <span className="kicker">How we work</span>
+            <h3 className="flow__title display-2">
+              From first call to growth — <span className="gold-text">in four clean steps.</span>
             </h3>
-
-            <p className="svc-flow-note">
-              Typical timeline <b>2–6 weeks</b>
-              <span aria-hidden="true">·</span>
-              you see progress every single week
-            </p>
+            <p className="copy">Built around your goals, with clarity at every step.</p>
           </div>
 
-          <ol className="svc-flow-steps">
-            {PROCESS.map((step, i) => {
+          <ol className="flow__steps">
+            {PROCESS.map((step, index) => {
               const StepIcon = step.icon;
               return (
-                <li key={step.title} className="fl">
-                  <span className="fl-top">
-                    <span className="fl-num">
-                      {String(i + 1).padStart(2, "0")}
+                <li key={step.copyTitle} className="flow__step">
+                  <div className="flow__step-top">
+                    <span className="flow__num">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="icon-chip icon-chip--ghost">
+                      <StepIcon size={18} strokeWidth={1.6} />
                     </span>
-                    <span className="fl-icon">
-                      <StepIcon size={19} strokeWidth={1.6} />
-                    </span>
-                  </span>
-                  <h4 className="fl-name font-display">{step.title}</h4>
-                  <p className="fl-copy">{step.copy}</p>
+                  </div>
+                  <h4 className="flow__name">{step.copyTitle}</h4>
+                  <p className="flow__copy">{step.copy}</p>
                 </li>
               );
             })}
           </ol>
 
           <div className="svc-assure">
-            <ul className="svc-assure-list">
+            <ul className="svc-assure__list">
               {ASSURANCES.map((item) => {
                 const AssureIcon = item.icon;
                 return (
-                  <li key={item.label} className="as">
+                  <li key={item.label} className="chip">
                     <AssureIcon size={14} strokeWidth={1.9} />
                     {item.label}
                   </li>
@@ -385,13 +315,13 @@ export default function Services() {
               href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-gold-outline svc-plan-btn"
+              className="btn btn--outline"
             >
               Plan my project
-              <ArrowRight size={14} />
+              <ArrowRight size={15} />
             </a>
           </div>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   );

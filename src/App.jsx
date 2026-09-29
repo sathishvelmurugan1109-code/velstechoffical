@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import ParticleBackground from "./components/ParticleBackground";
-import SplashScreen, { shouldShowSplash } from "./components/SplashScreen";
+import CursorAura from "./components/CursorAura";
+import ScrollProgress from "./components/ScrollProgress";
+import PageIntro, { shouldShowIntro } from "./components/PageIntro";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import TechMarquee from "./components/TechMarquee";
@@ -11,30 +13,37 @@ import Footer from "./components/Footer";
 import WhatsAppFloat from "./components/WhatsAppFloat";
 
 export default function App() {
-  // Cinematic intro — shown once per browser session.
-  const [showSplash, setShowSplash] = useState(shouldShowSplash);
+  // Short premium intro — shown once per browser session.
+  const [showIntro, setShowIntro] = useState(shouldShowIntro);
 
-  // Honour deep links (e.g. example.com/#contact) even when the cinematic
-  // intro is active — the splash locks body scroll, so hash scroll can be
-  // missed. Once the splash dismisses, scroll the target into view.
+  // Honour deep links (e.g. example.com/#contact). The intro briefly locks
+  // body scroll, which can swallow the browser's own hash scroll, so once
+  // the intro dismisses we scroll the target into view ourselves.
   useEffect(() => {
-    if (showSplash) return undefined;
+    if (showIntro) return undefined;
+
     const hash = window.location.hash;
     if (!hash) return undefined;
-    const id = hash.slice(1);
-    const target = document.getElementById(id);
+
+    const target = document.getElementById(hash.slice(1));
     if (target) target.scrollIntoView({ block: "start" });
+
     return undefined;
-  }, [showSplash]);
+  }, [showIntro]);
 
   return (
     <div className="relative min-h-screen font-body text-zinc-100 antialiased">
-      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+      {showIntro && <PageIntro onFinish={() => setShowIntro(false)} />}
 
-      <div className="ambient-light" aria-hidden="true" />
+      {/* Interaction layer: progress spine + pointer light */}
+      <ScrollProgress />
+      <CursorAura />
 
-      {/* Fixed futuristic backdrop: gradient mesh + particles + grid */}
+      {/* Fixed futuristic backdrop: gradient mesh, drifting grid and particles */}
       <ParticleBackground />
+
+      {/* Scroll-drifting page light — behind the content, above the backdrop */}
+      <span className="page-light" aria-hidden="true" />
 
       <Navbar />
 

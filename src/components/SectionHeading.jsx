@@ -1,53 +1,69 @@
-import { motion } from "framer-motion";
 import AnimatedText from "./AnimatedText";
+import Reveal from "./Reveal";
 
-/** Reusable animated section heading with neon tag + gradient highlight. */
-export default function SectionHeading({ id, tag, title, highlight, description }) {
+// ============================================================
+// Single section-header component — used by Services, About and Contact so
+// every section speaks the same typographic language.
+//
+// The visible words are split for the reveal animation, so the heading
+// carries an explicit `aria-label` while its animated fragments stay
+// aria-hidden: assistive tech reads one clean sentence.
+// ============================================================
+
+export default function SectionHeading({
+  id,
+  tag,
+  title,
+  highlight,
+  description,
+  align = "left",
+  className = "",
+}) {
+  const centred = align === "center";
+  const accessibleName = [title, highlight].filter(Boolean).join(" ");
+
   return (
-    <div className="mx-auto mb-14 max-w-2xl text-center">
-      <motion.span
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.6 }}
-        transition={{ duration: 0.5 }}
-        className="inline-block rounded-full border border-neon/30 bg-neon/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-neon"
-      >
-        {tag}
-      </motion.span>
+    <header
+      className={`flex flex-col gap-4 ${centred ? "items-center text-center" : "items-start"} ${className}`}
+    >
+      {tag && (
+        <Reveal y={14}>
+          <span className="kicker">{tag}</span>
+        </Reveal>
+      )}
 
-      <motion.h2
+      <h2
         id={id}
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.6 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
+        aria-label={accessibleName}
+        className={`display-2 ${centred ? "mx-auto max-w-[46rem]" : "max-w-[38rem]"}`}
       >
-        <AnimatedText text={title} as="span" className="inline-block" delay={0.12} />
+        <AnimatedText
+          aria-hidden="true"
+          text={title}
+          as="span"
+          mode="words"
+          className="block"
+          delay={0.06}
+        />
         {highlight && (
-          <>
-            <span className="inline-block w-2" aria-hidden="true" />
-            <AnimatedText
-              text={highlight}
-              as="span"
-              className="text-gradient text-gold-intense inline-block"
-              delay={0.22}
-            />
-          </>
+          <AnimatedText
+            aria-hidden="true"
+            text={highlight}
+            as="span"
+            mode="words"
+            className="gold-text block"
+            delay={0.14}
+          />
         )}
-      </motion.h2>
+      </h2>
 
       {description && (
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-4 text-zinc-400"
-        >
-          {description}
-        </motion.p>
+        <Reveal delay={0.12} y={18}>
+          <p className={`lead ${centred ? "mx-auto max-w-[54ch]" : "max-w-[56ch]"}`}>
+            {description}
+          </p>
+        </Reveal>
       )}
-    </div>
+    </header>
   );
 }

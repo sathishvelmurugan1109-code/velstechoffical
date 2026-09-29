@@ -1,9 +1,17 @@
 import { useEffect, useRef } from "react";
 
-/**
- * Fixed, full-viewport futuristic backdrop:
- * gradient-mesh blobs + neon grid + interactive particle network canvas.
- */
+// ============================================================
+// Fixed, full-viewport backdrop: gradient orbs + drifting grid + an
+// interactive gold particle network on canvas.
+//
+// Performance contract (this part survived the audit):
+//   • DPR capped at 2
+//   • particle budget adapts to viewport size and hardwareConcurrency
+//   • the loop pauses when the tab is hidden
+//   • if frames get slow (delta > 34ms) the population shrinks
+//   • touch devices skip the mouse-repulsion pass entirely
+// ============================================================
+
 export default function ParticleBackground() {
   const canvasRef = useRef(null);
 
@@ -14,8 +22,6 @@ export default function ParticleBackground() {
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const pointerFine = window.matchMedia("(pointer: fine)").matches;
-    const width = () => window.innerWidth;
-    const height = () => window.innerHeight;
 
     let raf = 0;
     let particles = [];
@@ -24,44 +30,38 @@ export default function ParticleBackground() {
     let lastBudgetCheck = 0;
     const mouse = { x: -9999, y: -9999 };
     const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const width = () => window.innerWidth;
+    const height = () => window.innerHeight;
+
     const getParticleTarget = () => {
       const area = width() * height();
 
-      if (reducedMotion) return 12;
-      if (window.matchMedia("(max-width: 767px)").matches) return Math.min(18, Math.max(10, Math.floor(area / 48000)));
-      if (window.matchMedia("(max-width: 1024px)").matches) return Math.min(36, Math.max(18, Math.floor(area / 27000)));
-      if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) return Math.min(60, Math.max(28, Math.floor(area / 20000)));
-      return Math.min(90, Math.max(42, Math.floor(area / 18000)));
+      if (reducedMotion) return 10;
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        return Math.min(16, Math.max(8, Math.floor(area / 52000)));
+      }
+      if (window.matchMedia("(max-width: 1024px)").matches) {
+        return Math.min(32, Math.max(16, Math.floor(area / 30000)));
+      }
+      if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) {
+        return Math.min(54, Math.max(24, Math.floor(area / 22000)));
+      }
+      return Math.min(80, Math.max(38, Math.floor(area / 20000)));
     };
 
     const makeParticle = () => ({
       x: Math.random() * width(),
       y: Math.random() * height(),
-      vx: (Math.random() - 0.5) * (reducedMotion ? 0.08 : 0.3),
-      vy: (Math.random() - 0.5) * (reducedMotion ? 0.08 : 0.3),
-      r: Math.random() * 1.8 + 0.7,
+      vx: (Math.random() - 0.5) * (reducedMotion ? 0.08 : 0.26),
+      vy: (Math.random() - 0.5) * (reducedMotion ? 0.08 : 0.26),
+      r: Math.random() * 1.7 + 0.7,
     });
-
-    const syncParticles = () => {
-      const target = getParticleTarget();
-      if (particles.length < target) {
-        const addCount = target - particles.length;
-        for (let i = 0; i < addCount; i += 1) particles.push(makeParticle());
-      } else if (particles.length > target + 8) {
-        particles.length = target;
-      }
-    };
-
-    const init = () => {
-      particles = Array.from({ length: getParticleTarget() }, () => makeParticle());
-      syncParticles();
-    };
 
     const resize = () => {
       canvas.width = width() * DPR;
       canvas.height = height() * DPR;
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-      init();
+      particles = Array.from({ length: getParticleTarget() }, () => makeParticle());
     };
 
     const updateVisibility = () => {
@@ -70,6 +70,7 @@ export default function ParticleBackground() {
         cancelAnimationFrame(raf);
         return;
       }
+      lastTime = 0;
       raf = requestAnimationFrame(step);
     };
 
@@ -83,8 +84,8 @@ export default function ParticleBackground() {
         lastBudgetCheck = timestamp;
         const target = getParticleTarget();
 
-        if (delta > 34 && particles.length > 12) {
-          particles.length = Math.max(12, Math.round(particles.length * 0.9));
+        if (delta > 34 && particles.length > 10) {
+          particles.length = Math.max(10, Math.round(particles.length * 0.9));
         } else if (delta < 18 && particles.length < target) {
           particles.push(makeParticle());
         }
@@ -94,7 +95,7 @@ export default function ParticleBackground() {
 
       const w = width();
       const h = height();
-      const linkDistance = reducedMotion ? 80 : 120;
+      const linkDistance = reducedMotion ? 76 : 118;
 
       ctx.clearRect(0, 0, w, h);
 
@@ -106,8 +107,8 @@ export default function ParticleBackground() {
           const dx = p.x - mouse.x;
           const dy = p.y - mouse.y;
           if (dx * dx + dy * dy < 120 * 120) {
-            p.x += dx * 0.004;
-            p.y += dy * 0.004;
+            p.x += dx * 0.0035;
+            p.y += dy * 0.0035;
           }
         }
 
@@ -115,7 +116,7 @@ export default function ParticleBackground() {
         if (p.y < 0 || p.y > h) p.vy *= -1;
 
         ctx.beginPath();
-        ctx.fillStyle = "rgba(255, 208, 0, 0.42)";
+        ctx.fillStyle = "rgba(255, 208, 0, 0.34)";
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
       }
@@ -130,7 +131,7 @@ export default function ParticleBackground() {
               ctx.beginPath();
               ctx.moveTo(a.x, a.y);
               ctx.lineTo(b.x, b.y);
-              ctx.strokeStyle = `rgba(255, 208, 0, ${(1 - d / linkDistance) * 0.12})`;
+              ctx.strokeStyle = `rgba(255, 208, 0, ${(1 - d / linkDistance) * 0.1})`;
               ctx.lineWidth = 1;
               ctx.stroke();
             }
@@ -162,7 +163,7 @@ export default function ParticleBackground() {
   }, []);
 
   return (
-        <div
+    <div
       className="fixed inset-0 -z-10 overflow-hidden"
       aria-hidden="true"
       style={{ pointerEvents: "none" }}
@@ -170,22 +171,23 @@ export default function ParticleBackground() {
       {/* Base */}
       <div className="absolute inset-0 bg-void" />
 
-      {/* Gradient mesh blobs */}
-      <div className="absolute -top-32 -left-32 h-[34rem] w-[34rem] rounded-full bg-gold/8 blur-[140px] animate-float-slow" />
-      <div className="absolute top-1/3 -right-40 h-[30rem] w-[30rem] rounded-full bg-gold/10 blur-[130px] animate-float" />
-      <div className="absolute bottom-0 left-1/4 h-[26rem] w-[26rem] rounded-full bg-gold/5 blur-[120px]" />
+      {/* Two wide gold orbs (was three 34rem blurs — cheaper, same mood) */}
+      <div className="amb-orb amb-orb--gold -left-32 -top-24 h-[26rem] w-[26rem]" />
+      <div className="amb-orb amb-orb--gold -right-32 top-1/3 h-[22rem] w-[22rem] opacity-40" />
+      <div className="amb-orb amb-orb--soft bottom-0 left-1/4 h-[20rem] w-[20rem]" />
 
-      {/* Neon grid with radial mask */}
-      <div className="grid-bg absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
+      {/* Drifting grid, masked to the middle for readability */}
+      <div className="amb-grid amb-grid--drift" />
 
-      {/* Interactive particles */}
-      {/* NOTE: `h-full w-full` is required — `inset-0` alone does NOT stretch a
+      {/* Interactive particle network.
+          `h-full w-full` is required — `inset-0` alone does NOT stretch a
           replaced element like <canvas>, so on DPR>1 screens the canvas box
-          resolved to its intrinsic (attribute) size and rendered 2x too large. */}
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-70" />
+          resolved to its intrinsic size and rendered 2× too large. */}
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-60" />
 
-      {/* Bottom fade for readability */}
+      {/* Bottom fade keeps body copy readable */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-void" />
     </div>
   );
 }
+

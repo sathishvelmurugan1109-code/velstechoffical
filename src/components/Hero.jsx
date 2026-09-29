@@ -1,346 +1,327 @@
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
-  PlayCircle,
-  Code2,
-  Smartphone,
-  Megaphone,
-  Lightbulb,
-  Monitor,
-  Users,
-  TrendingUp,
-  ShieldCheck,
-  Star,
-  ChevronDown,
+  ArrowUpRight,
   BadgeCheck,
-  Wallet,
-  Headphones,
+  CheckCircle2,
+  ChevronDown,
+  Code2,
+  Lightbulb,
+  Megaphone,
+  Rocket,
+  Search,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  TrendingUp,
+  Users,
 } from "lucide-react";
-import { DEFAULT_WA_MESSAGE, buildWhatsAppLink } from "../data/site";
 import AnimatedText from "./AnimatedText";
+import CountUp from "./CountUp";
+import Reveal from "./Reveal";
+import { EASE, fadeUp, useMagnetic, useStageMotion } from "../lib/motion";
 import logo from "../assets/profile.png";
 
-/* --- Trust badge (desktop floats in visual, mobile stacks below) --- */
-const TRUST_INITIALS = ["SR", "VK", "AM"];
+// ============================================================
+// HERO — "the Vels Tech core".
+//
+// The laptop/phone mockups are replaced by an abstract system: concentric
+// gold rings, a glass core holding the real brand mark, orbiting service
+// nodes and two light trails. Every CTA, statistic and label is content the
+// site already had — nothing invented.
+// ============================================================
 
-function TrustBadge({ className = "" }) {
-  return (
-    <div
-      className={`items-center gap-3 rounded-2xl border border-white/8 bg-carbon/70 px-4 py-3 backdrop-blur-md ${className}`}
-    >
-      <div className="flex -space-x-2.5">
-        {TRUST_INITIALS.map((ini) => (
-          <span
-            key={ini}
-            className="grid h-8 w-8 place-items-center rounded-full border border-gold/40 bg-graphite text-[10px] font-bold text-gold"
-          >
-            {ini}
-          </span>
-        ))}
-      </div>
-      <div className="leading-tight">
-        <p className="text-xs font-semibold text-zinc-200">
-          Trusted by 30+ businesses
-        </p>
-        <div className="mt-0.5 flex gap-0.5 text-gold">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} size={11} fill="currentColor" strokeWidth={0} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* --- Floating glass cards around the laptop --- */
-const FLOAT_CARDS = [
-  { icon: Monitor, label: "Web Development", cls: "fc-1" },
-  { icon: Users, label: "People First", cls: "fc-2" },
-  { icon: TrendingUp, label: "Business Growth", cls: "fc-3" },
-  { icon: ShieldCheck, label: "Reliable Support", cls: "fc-4" },
+/** Service names cycled in the eyebrow — all real entries from site.js. */
+const ROTATING = [
+  "Website Development",
+  "Mobile App Development",
+  "Digital Marketing",
+  "SEO Optimization",
 ];
 
-/* --- Compact service strip under the hero content --- */
+const CORE_NODES = [
+  { icon: Code2, label: "Website Development", cls: "core__chip--1" },
+  { icon: Smartphone, label: "Mobile Apps", cls: "core__chip--2" },
+  { icon: Megaphone, label: "Digital Marketing", cls: "core__chip--3" },
+  { icon: Search, label: "SEO Growth", cls: "core__chip--4" },
+];
+
 const SERVICE_STRIP = [
   { icon: Code2, label: "Web Development" },
   { icon: Smartphone, label: "Mobile App Development" },
   { icon: Megaphone, label: "Digital Marketing" },
+  { icon: Search, label: "SEO Optimization" },
   { icon: Lightbulb, label: "IT Consulting" },
 ];
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 26 },
-  visible: (d = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, delay: d, ease: "easeOut" },
-  }),
-};
-
-/* --- Why-choose-us promise card (replaces old stats strip) --- */
-const PROMISES = [
-  { icon: BadgeCheck, label: "On-Time Delivery" },
-  { icon: Wallet, label: "Transparent Pricing" },
-  { icon: Headphones, label: "Dedicated Support" },
+/* The four metrics the site already published in the About section — same
+   values, same labels, nothing invented. An earlier draft of this strip
+   carried a review score and a commitment figure the business never
+   published, which also contradicted the About panel. Both are gone, and
+   scripts/render-check.mjs now guards against them coming back. */
+const STATS = [
+  { icon: Rocket, value: 50, suffix: "+", label: "Projects Completed" },
+  { icon: Users, value: 30, suffix: "+", label: "Happy Clients" },
+  { icon: ShieldCheck, value: 5, suffix: "+", label: "Years Experience" },
+  { icon: CheckCircle2, value: 99, suffix: "%", label: "Client Satisfaction" },
 ];
 
+const TRUST_INDICATORS = [
+  { icon: Sparkles, label: "Innovative Solutions" },
+  { icon: Users, label: "Expert Team" },
+  { icon: BadgeCheck, label: "On-Time Delivery" },
+  { icon: TrendingUp, label: "Business Growth" },
+];
+
+/** Rotating service name — motion-free users simply see the first one. */
+function RotatingWord({ words, interval = 2600 }) {
+  const reduceMotion = useReducedMotion();
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (reduceMotion) return undefined;
+    const id = window.setInterval(
+      () => setIndex((value) => (value + 1) % words.length),
+      interval
+    );
+    return () => window.clearInterval(id);
+  }, [interval, reduceMotion, words.length]);
+
+  if (reduceMotion) return <span>{words[0]}</span>;
+
+  return (
+    <span className="relative inline-flex min-w-[11ch] overflow-hidden align-bottom">
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={words[index]}
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: "0%", opacity: 1 }}
+          exit={{ y: "-100%", opacity: 0 }}
+          transition={{ duration: 0.42, ease: EASE }}
+          className="inline-block"
+        >
+          {words[index]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
 export default function Hero() {
+  const magneticPrimary = useMagnetic(0.3, 9);
+  const magneticSecondary = useMagnetic(0.26, 8);
+  // One rAF scheduler publishes --px/--py (pointer) and --scrolly (scroll)
+  // for every stage layer. Desktop fine-pointer only; mobile stays static.
+  const stageRef = useStageMotion(240);
+
   return (
     <section
+      ref={stageRef}
       id="home"
       aria-label="Hero"
-      className="hero-home relative flex min-h-screen items-center overflow-hidden pb-16 pt-32 lg:pt-36"
+      className="hero section--lit"
     >
-      <div className="mx-auto w-full max-w-7xl px-5 lg:px-8">
-        <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
-          {/* ============ LEFT — CONTENT COLUMN ============ */}
-          <div className="relative z-10 max-w-2xl">
-            {/* Eyebrow */}
+      {/* ---------- Cinematic stage: light field, beams, perspective floor,
+           floating shards and a focus vignette. Purely decorative. ---------- */}
+      <div className="stage" aria-hidden="true">
+        <span className="stage__field" />
+        <span className="stage__floor">
+          <span className="stage__grid" />
+        </span>
+        <span className="stage__horizon" />
+        <span className="stage__beam stage__beam--a" />
+        <span className="stage__beam stage__beam--b" />
+        <span className="stage__shard stage__shard--1" />
+        <span className="stage__shard stage__shard--2" />
+        <span className="stage__shard stage__shard--3" />
+        <span className="stage__vignette" />
+      </div>
+
+      <div className="shell">
+        <div className="hero__grid">
+          {/* ============ COPY ============ */}
+          <div className="hero__copy">
             <motion.div
               variants={fadeUp}
               initial="hidden"
-              animate="visible"
+              animate="show"
               custom={0}
-              className="mb-6 inline-flex items-center gap-3"
+              className="hero__meta"
             >
-              <span className="h-px w-8 bg-gradient-to-r from-transparent to-gold" />
-              <span className="text-xs font-semibold uppercase tracking-[0.28em] text-gold">
-                Premium Digital Solutions
+              <span className="kicker">Premium Digital Solutions</span>
+              <span className="chip chip--gold">
+                <Sparkles size={13} />
+                <RotatingWord words={ROTATING} />
               </span>
             </motion.div>
 
-            {/* Headline */}
-            {/* Headline — the visible text is split into per-letter spans for the
-                reveal animation, so an explicit aria-label keeps the accessible
-                name readable (otherwise AT announces "W e   B u i l d …"). */}
+            {/* Per-word reveal; the h1 keeps one clean accessible name */}
             <motion.h1
               variants={fadeUp}
               initial="hidden"
-              animate="visible"
-              custom={0.08}
+              animate="show"
+              custom={0.06}
               aria-label="We Build Digital Experiences That Dominate."
-              className="font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-6xl lg:text-[4.2rem]"
+              className="display-hero hero-title"
             >
-              <span className="hero-animated-line block" aria-hidden="true">
-                <AnimatedText
-                  text="We Build Digital"
-                  as="span"
-                  mode="words"
-                  className="hero-animated-heading"
-                  delay={0.18}
-                />
-              </span>
-              <span className="hero-animated-line block text-gold-soft text-gold-glow" aria-hidden="true">
-                <AnimatedText
-                  text="Experiences"
-                  as="span"
-                  mode="words"
-                  className="hero-animated-heading hero-animated-highlight"
-                  delay={0.38}
-                />
-              </span>
-              <span className="hero-animated-line block" aria-hidden="true">
-                <AnimatedText
-                  text="That Dominate."
-                  as="span"
-                  mode="words"
-                  className="hero-animated-heading"
-                  delay={0.58}
-                />
-              </span>
+              <AnimatedText
+                aria-hidden="true"
+                text="We Build"
+                as="span"
+                mode="lines"
+                className="display-hero__line"
+              />
+              <AnimatedText
+                aria-hidden="true"
+                text="Digital Experiences"
+                as="span"
+                mode="lines"
+                className="display-hero__line display-hero__accent"
+                delay={0.14}
+              />
+              <AnimatedText
+                aria-hidden="true"
+                text="That Dominate."
+                as="span"
+                mode="lines"
+                className="display-hero__line"
+                delay={0.28}
+              />
             </motion.h1>
 
-            {/* Supporting text */}
             <motion.p
               variants={fadeUp}
               initial="hidden"
-              animate="visible"
-              custom={0.2}
-              className="mt-6 max-w-xl text-base leading-relaxed text-mist sm:text-lg"
+              animate="show"
+              custom={0.26}
+              className="lead hero-sub"
             >
-              From stunning websites to high-converting digital solutions —
-              Vels Tech turns your ideas into powerful products that grow your
-              business.
+              Websites, mobile apps, digital marketing and SEO — engineered with
+              modern technology and a premium eye for detail.
             </motion.p>
 
-            {/* CTAs */}
             <motion.div
               variants={fadeUp}
               initial="hidden"
-              animate="visible"
-              custom={0.32}
-              className="relative z-20 mt-9 flex flex-col gap-4 sm:flex-row sm:items-center"
+              animate="show"
+              custom={0.34}
+              className="hero__cta"
             >
               <a
-                href={buildWhatsAppLink(DEFAULT_WA_MESSAGE)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-gold w-full sm:w-auto"
+                href="#contact"
+                className="btn btn--gold"
+                onPointerMove={magneticPrimary.onPointerMove}
+                onPointerLeave={magneticPrimary.onPointerLeave}
               >
-                Start Your Project
-                <ArrowRight size={18} />
+                Get Free Consultation
+                <ArrowUpRight size={17} className="btn__arrow--up" />
               </a>
-              <a href="#portfolio" className="btn-ghost w-full sm:w-auto">
+              <a
+                href="#portfolio"
+                className="btn btn--ghost"
+                onPointerMove={magneticSecondary.onPointerMove}
+                onPointerLeave={magneticSecondary.onPointerLeave}
+              >
                 View Our Work
-                <PlayCircle size={20} />
+                <ArrowRight size={17} />
               </a>
             </motion.div>
 
-            {/* Services strip */}
-            <motion.div
+            <motion.ul
               variants={fadeUp}
               initial="hidden"
-              animate="visible"
-              custom={0.45}
-              className="hero-services mt-12 border-t border-white/8 pt-8"
+              animate="show"
+              custom={0.42}
+              className="hero__trust"
+              aria-label="Vels Tech commitments"
             >
-              {SERVICE_STRIP.map((s) => (
-                <div key={s.label} className="hs-item">
-                  <span className="hs-icon">
-                    <s.icon size={24} strokeWidth={1.6} />
-                  </span>
-                  <span className="hs-label">{s.label}</span>
-                </div>
+              {TRUST_INDICATORS.map(({ icon: TrustIcon, label }) => (
+                <li key={label}>
+                  <TrustIcon size={15} strokeWidth={1.8} aria-hidden="true" />
+                  {label}
+                </li>
               ))}
-            </motion.div>
+            </motion.ul>
+          </div>
 
-            {/* Why choose us — promise card */}
+          {/* ============ CORE VISUAL ============ */}
+          <div className="core-depth" aria-hidden="true">
             <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={0.58}
-              className="glass mt-10 rounded-2xl px-7 py-6"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.05, delay: 0.18, ease: EASE }}
+              className="core"
             >
-              <p className="text-[0.65rem] font-bold uppercase tracking-[0.24em] text-gold">
-                Why Choose Vels Tech?
-              </p>
-              <ul className="mt-4 grid gap-3 sm:grid-cols-3">
-                {PROMISES.map((p) => (
-                  <li key={p.label} className="flex items-center gap-2.5">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-gold/30 bg-graphite text-gold">
-                      <p.icon size={16} strokeWidth={1.8} />
-                    </span>
-                    <span className="text-xs font-semibold text-zinc-200 sm:text-[0.8rem]">
-                      {p.label}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/8 pt-4">
-                <p className="text-xs text-mist">
-                  Free consultation · No hidden charges
-                </p>
-                <a
-                  href={buildWhatsAppLink(DEFAULT_WA_MESSAGE)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-gold transition-colors hover:text-gold-deep"
-                >
-                  Get a Free Quote
-                  <ArrowRight size={14} />
-                </a>
-              </div>
+              <span className="aurora" />
+              <span className="core__glow" />
+              <span className="core__ring core__ring--outer" />
+              <span className="core__ring core__ring--mid">
+                <span className="core__node" />
+              </span>
+              <span className="core__ring core__ring--inner" />
+              <span className="core__trail core__trail--a" />
+              <span className="core__trail core__trail--b" />
+
+              <span className="core__disc">
+                <img
+                  src={logo}
+                  alt=""
+                  width={148}
+                  height={148}
+                  fetchpriority="high"
+                  decoding="async"
+                />
+              </span>
+
+              {CORE_NODES.map(({ icon: NodeIcon, label, cls }) => (
+                <span key={label} className={`core__chip ${cls}`}>
+                  <NodeIcon size={15} strokeWidth={1.8} />
+                  {label}
+                </span>
+              ))}
             </motion.div>
           </div>
 
-          {/* ============ RIGHT — CINEMATIC VISUAL ============ */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.94, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.25, ease: "easeOut" }}
-            className="hero-visual"
-            aria-hidden="true"
-          >
-            {/* Depth: dark architectural monolith forms */}
-            <div className="monolith monolith-1" />
-            <div className="monolith monolith-2" />
-            <div className="side-pillar" />
-
-            {/* Faint gold circuit traces with glowing nodes */}
-            <svg
-              className="circuit-trace"
-              viewBox="0 0 600 600"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path d="M40 120 H180 L220 160 V240" />
-              <path d="M560 90 H460 L420 130 V210" />
-              <path d="M560 480 H470 L440 450" />
-              <circle cx="40" cy="120" r="4" />
-              <circle cx="220" cy="240" r="4" />
-              <circle cx="560" cy="90" r="4" />
-              <circle cx="420" cy="210" r="4" />
-            </svg>
-
-            {/* Gold orbital light */}
-            <div className="orbit" />
-            <div className="orbit orbit-2" />
-            <span className="orbit-node node-a" />
-            <span className="orbit-node node-b" />
-
-            {/* Laptop — screen shows ONLY the Vels Tech logo */}
-            <div className="laptop">
-              <div className="laptop-lid">
-                <div className="laptop-notch" />
-                <div className="laptop-screen">
-                  <img
-                    src={logo}
-                    alt=""
-                    loading="eager"
-                    width={420}
-                    height={420}
-                  />
-                </div>
-              </div>
-              <div className="laptop-base" />
-              <div className="light-bar" />
-            </div>
-
-            <div className="floor-glow" />
-
-            {/* Floating glass cards */}
-            {FLOAT_CARDS.map((card) => (
-              <div key={card.label} className={`float-card ${card.cls}`}>
-                <span className="fc-icon">
-                  <card.icon size={17} strokeWidth={1.7} />
-                </span>
-                <span className="fc-label">{card.label}</span>
-              </div>
-            ))}
-
-            {/* Trust element — lower right, visually secondary */}
-            <TrustBadge className="absolute bottom-0 right-0 hidden sm:flex" />
-          </motion.div>
         </div>
 
-        {/* Trust element — mobile only (desktop version floats in the visual) */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.68}
-          className="mt-8 flex justify-center sm:hidden"
-        >
-          <TrustBadge className="flex" />
-        </motion.div>
+        {/* ============ SERVICE STRIP ============ */}
+        <Reveal delay={0.1} y={18}>
+          <nav className="mt-12 flex flex-wrap gap-2" aria-label="Our services">
+            {SERVICE_STRIP.map(({ icon: ServiceIcon, label }) => (
+              <a key={label} href="#services" className="chip">
+                <ServiceIcon size={15} strokeWidth={1.7} />
+                {label}
+              </a>
+            ))}
+          </nav>
+        </Reveal>
 
-        {/* Scroll to Explore */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.75}
-          className="mt-14 lg:-mt-2"
-        >
-          <a href="#services" className="scroll-hint">
-            <span className="sh-circle">
-              <ChevronDown size={16} />
-            </span>
-            Scroll to Explore
-            <span className="h-px w-14 bg-gradient-to-r from-gold/40 to-transparent" />
+        {/* ============ KPI STRIP ============ */}
+        <Reveal delay={0.16} y={22} className="kpi mt-6">
+          {STATS.map((stat) => (
+            <div className="kpi__cell" key={stat.label}>
+              <stat.icon size={18} strokeWidth={1.7} aria-hidden="true" />
+              <span className="kpi__value">
+                <CountUp value={stat.value} suffix={stat.suffix} />
+              </span>
+              <span className="kpi__label">{stat.label}</span>
+            </div>
+          ))}
+        </Reveal>
+
+        {/* Single scroll affordance for the whole page — the Services section
+            no longer repeats it. */}
+        <Reveal delay={0.22} y={12}>
+          <a href="#services" className="hero__scroll scroll-cue">
+            <span className="hero__scroll-rail" aria-hidden="true" />
+            <i aria-hidden="true">
+              <ChevronDown size={15} />
+            </i>
+            Scroll to explore
+            <span className="hero__scroll-rail" aria-hidden="true" />
           </a>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   );

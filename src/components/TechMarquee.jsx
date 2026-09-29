@@ -1,43 +1,54 @@
-import { TECH_STACK } from "../data/site";
+import { SERVICES, TECH_STACK } from "../data/site";
+import { serviceAnchorId } from "../lib/interactions";
 
-/** Infinite scrolling tech-stack ticker (pauses on hover).
- *
- *  Two identical groups are rendered side by side and the track slides -50%,
- *  i.e. exactly one group width, so the loop restarts with no visible jump.
- *  (`pr-10` supplies the trailing gap that the flex `gap-10` cannot add
- *  between the two groups, keeping the spacing uniform across the seam.)
- *
- *  This strip is also the `#portfolio` navigation target, so it is a real
- *  landmark (with a screen-reader heading) instead of an aria-hidden blob.
- *  The duplicated marquee track is decorative and stays aria-hidden.
- */
-export default function TechMarquee() {
-  const renderGroup = (groupKey) => (
-    <div key={groupKey} className="flex shrink-0 items-center gap-10 pr-10">
-      {TECH_STACK.map((item) => (
-        <span
-          key={`${groupKey}-${item}`}
-          className="flex items-center gap-10 font-display text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500"
-        >
-          {item}
-          <span className="h-1.5 w-1.5 rounded-full bg-gold shadow-[0_0_8px_rgba(255,208,0,0.8)]" />
-        </span>
-      ))}
-    </div>
-  );
+// ============================================================
+// #portfolio — the technologies and platforms we build with.
+//
+// Two identical groups are rendered side by side and the track slides -50%
+// (exactly one group width), so the loop restarts with no visible jump.
+// `pr` on the group supplies the gap the flex `gap` can't add across the
+// seam. The duplicated track is decorative and stays aria-hidden, while the
+// section itself is a real landmark with a screen-reader heading.
+//
+// The capability row below links to the live service cards, so the
+// "Portfolio" nav item leads somewhere genuinely useful — no invented
+// case studies, clients or projects.
+// ============================================================
 
+function TrackGroup({ groupKey }) {
   return (
-    <section
-      id="portfolio"
-      aria-labelledby="portfolio-heading"
-      className="scroll-mt-28 overflow-hidden border-y border-white/5 bg-carbon/60 py-4 backdrop-blur-sm"
-    >
+    <ul className="band__group">
+      {TECH_STACK.map((item) => (
+        <li key={`${groupKey}-${item}`} className="band__item">
+          {item}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default function TechMarquee() {
+  return (
+    <section id="portfolio" aria-labelledby="portfolio-heading" className="band">
       <h2 id="portfolio-heading" className="sr-only">
         Our work — the technologies and platforms we build with
       </h2>
-      <div className="marquee-track flex w-max animate-marquee" aria-hidden="true">
-        {renderGroup("group-a")}
-        {renderGroup("group-b")}
+
+      <div className="band__track" aria-hidden="true">
+        <TrackGroup groupKey="group-a" />
+        <TrackGroup groupKey="group-b" />
+      </div>
+
+      <div className="band__caps">
+        {SERVICES.map((service) => (
+          <a
+            key={service.title}
+            href={`#${serviceAnchorId(service.title)}`}
+            className="band__cap"
+          >
+            {service.title}
+          </a>
+        ))}
       </div>
     </section>
   );
